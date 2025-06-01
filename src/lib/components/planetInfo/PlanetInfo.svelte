@@ -1,0 +1,153 @@
+<script lang="ts">
+	import { Sword, MapPin, Calendar, Skull } from '@lucide/svelte';
+	import * as Chart from '$lib/components/chart';
+	import { PieChart } from 'layerchart';
+	import type { Planet } from '$lib/types';
+	interface Props {
+		planet: Planet;
+	}
+
+	let { planet }: Props = $props();
+
+	let open = $state(false);
+
+	// Sample faction control data
+	const chartConfig = {
+		astra_militarum: { label: 'Astra Militarum', color: 'var(--chart-1)' },
+		chaos_space_marines: { label: 'Chaos Space Marines', color: 'var(--chart-2)' },
+		space_marines: { label: 'Space Marines', color: 'var(--chart-3)' },
+		contested: { label: 'Contested', color: 'var(--chart-4)' }
+	} satisfies Chart.ChartConfig;
+
+	const getResultColor = (result: string) => {
+		switch (result) {
+			case 'Attacker Victory':
+				return 'text-red-600 bg-red-50';
+			case 'Defender Victory':
+				return 'text-green-600 bg-green-50';
+			case 'Draw':
+				return 'text-yellow-600 bg-yellow-50';
+			default:
+				return 'text-gray-600 bg-gray-50';
+		}
+	};
+</script>
+
+<div
+	class="h-full overflow-y-auto rounded-lg border-l border-gray-700 bg-black/50 backdrop-blur-sm"
+>
+	<div
+		class="flex h-full min-w-80 flex-col rounded-lg bg-gradient-to-b from-gray-900 to-black shadow-2xl transition-all duration-300"
+	>
+		<!-- {/* Gothic Header */} -->
+		<div
+			class="flex items-center justify-between rounded-t-lg border-b-2 border-yellow-600 bg-gradient-to-r from-red-900 via-gray-900 to-red-900 p-4 text-yellow-200"
+		>
+			<div class="flex items-center gap-3">
+				<Skull class="text-red-400" size={24} />
+				<div>
+					<h2 class="text-xl font-bold tracking-wider">{planet.name.toUpperCase()}</h2>
+					<div class="flex items-center gap-2 text-sm text-yellow-300">
+						<MapPin size={14} />
+						<span class="tracking-wide">{planet.sector}</span>
+						<span class="mx-1">•</span>
+						<span class="tracking-wide">{planet.classification}</span>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- {/* Scrollable Gothic Content */} -->
+		<div class="h-full flex-1 space-y-4 overflow-y-auto p-4 text-yellow-100">
+			<!-- {/* Planet Information */} -->
+			<div class="bg-opacity-50 rounded border border-yellow-600 bg-gray-900 p-4">
+				<h3
+					class="mb-3 border-b border-yellow-600 pb-2 text-lg font-bold tracking-wider text-yellow-300"
+				>
+					++ PLANETARY DATA ++
+				</h3>
+
+				<p class="mb-4 text-sm leading-relaxed text-yellow-100 italic">
+					{planet.description}
+				</p>
+
+				<div class="space-y-2 font-mono text-sm">
+					{#each [['POPULATION', planet.population], ['TITHE GRADE', planet.tithe], ['CLASSIFICATION', planet.climate], ['GOVERNMENT', planet.government]] as [label, value] (label)}
+						<div class="flex justify-between border-b border-gray-700 py-1">
+							<span class="font-bold text-yellow-300">{label}:</span>
+							<span class="text-yellow-100">{value}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+
+			<!-- {/* Faction Control Chart */} -->
+			<div class="bg-opacity-50 rounded border border-red-600 bg-gray-900 p-4">
+				<h3 class="mb-3 border-b border-red-600 pb-2 text-lg font-bold tracking-wider text-red-300">
+					++ TERRITORIAL CONTROL ++
+				</h3>
+				<div class="h-64">
+					<Chart.Container config={chartConfig} class="mx-auto aspect-square max-h-[250px]">
+						<PieChart
+							data={planet.faction_control}
+							key="faction"
+							value="value"
+							c="color"
+							innerRadius={60}
+							padding={28}
+							props={{ pie: { motion: 'tween' } }}
+						>
+							{#snippet tooltip()}
+								<Chart.Tooltip hideLabel />
+							{/snippet}
+						</PieChart>
+					</Chart.Container>
+				</div>
+			</div>
+
+			<!-- {/* Battle History */} -->
+			<div class="bg-opacity-50 rounded border border-yellow-600 bg-gray-900 p-4">
+				<h3
+					class="mb-3 flex items-center gap-2 border-b border-yellow-600 pb-2 text-lg font-bold tracking-wider text-yellow-300"
+				>
+					<Skull size={18} />
+					++ BATTLE RECORDS ++
+				</h3>
+
+				<div class="space-y-3">
+					{#each planet.battle_history as battle (battle.id)}
+						<div
+							class="bg-opacity-30 hover:bg-opacity-50 rounded border border-gray-600 bg-black p-3 transition-colors hover:bg-gray-800"
+						>
+							<div class="mb-2 flex items-start justify-between">
+								<div class="flex flex-col gap-1">
+									<div class="flex items-center gap-2 text-xs">
+										<Calendar size={12} class="text-yellow-400" />
+										<span class="font-mono font-bold text-yellow-300">{battle.date}</span>
+									</div>
+									<div class="font-mono text-xs text-yellow-200">
+										<span class="text-red-300">{battle.type}</span>
+										<span class="mx-2">•</span>
+										<span>{battle.points} pts</span>
+									</div>
+								</div>
+								<span
+									class={`rounded px-2 py-1 text-xs font-bold ${getResultColor(battle.result)}`}
+								>
+									{battle.result}
+								</span>
+							</div>
+
+							<div class="flex items-center gap-2 text-xs">
+								<Sword size={12} class="text-red-400" />
+								<span class="font-bold text-red-400">{battle.attacker}</span>
+								<span class="text-gray-400">vs</span>
+								<span class="font-bold text-blue-400">{battle.defender}</span>
+							</div>
+						</div>
+					{/each}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
