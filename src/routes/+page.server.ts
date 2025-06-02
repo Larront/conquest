@@ -6,6 +6,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 	const { data: battles } = await supabase.from('battles').select();
 	const { data: profiles } = await supabase.from('profiles').select();
 	const { data: control } = await supabase.from('control').select();
+	const { data: factions } = await supabase.from('factions').select();
 
 	console.log(control);
 	const { user } = await safeGetSession();
@@ -21,6 +22,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		battles: battles ?? [],
 		profiles: profiles ?? [],
 		control: control ?? [],
+		factions: factions ?? [],
 		user
 	};
 };

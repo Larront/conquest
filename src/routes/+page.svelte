@@ -1,24 +1,26 @@
 <script lang="ts">
 	import type { Planet } from '$lib/types';
-	import PlanetInfo from '$lib/components/planetInfo/PlanetInfo.svelte';
+	import PlanetInfo from '$lib/components/planet/PlanetInfo.svelte';
 	import { LogIn, Plus, X } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
+	import PlanetDisplay from '$lib/components/planet/PlanetDisplay.svelte';
+	import { Tween } from 'svelte/motion';
+	import { cubicInOut, linear } from 'svelte/easing';
+	import { onMount } from 'svelte';
 
 	let selectedPlanet: Planet | undefined = $state();
 	let planetInfoOpen = $state(false);
 
 	let { data } = $props();
-	let { planets, battles, profiles, control, user } = $derived(data);
+	let { planets, battles, profiles, control, factions, user } = $derived(data);
 
 	let isMobile = new IsMobile();
 
 	const planetData = $derived(
 		planets.map((planet) => ({
-			distance: Math.floor(Math.random() * (60 - 15 + 1) + 15) + '%',
 			angle: Math.floor(Math.random() * (359 - 0 + 1) + 0),
-			color: 'bg-yellow-300',
 			faction_control: control
 				.filter((entry) => entry.planet == planet.id)
 				.map((control) => ({
@@ -63,15 +65,39 @@
 <div
 	class="relative h-full w-full overflow-hidden bg-gradient-to-br from-gray-900 via-red-950 to-black"
 >
-	<!-- Stars background -->
+	<!-- Enhanced Stars background with twinkling -->
 	<div class="absolute inset-0 opacity-60">
-		{#each Array(100) as _, i}
+		{#each Array(150) as _, i}
 			<div
-				class="absolute h-1 w-1 animate-pulse rounded-full bg-white"
+				class="animate-twinkle absolute rounded-full bg-white"
+				class:w-0.5={i % 4 === 0}
+				class:h-0.5={i % 4 === 0}
+				class:w-1={i % 4 === 1}
+				class:h-1={i % 4 === 1}
+				class:w-1.5={i % 4 === 2}
+				class:h-1.5={i % 4 === 2}
+				class:w-px={i % 4 === 3}
+				class:h-px={i % 4 === 3}
 				style="left: {Math.random() * 100}%; top: {Math.random() *
-					100}%; animation-delay: {Math.random() * 3}s;"
+					100}%; animation-delay: {Math.random() * 4}s; animation-duration: {2 +
+					Math.random() * 3}s;"
 			></div>
 		{/each}
+	</div>
+
+	<!-- Nebula effects -->
+	<div class="absolute inset-0 opacity-20">
+		<div
+			class="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full bg-purple-600 blur-3xl filter"
+		></div>
+		<div
+			class="absolute right-1/4 bottom-1/3 h-80 w-80 animate-pulse rounded-full bg-blue-600 blur-3xl filter"
+			style="animation-delay: 2s;"
+		></div>
+		<div
+			class="absolute top-1/2 right-1/2 h-64 w-64 animate-pulse rounded-full bg-red-600 blur-3xl filter"
+			style="animation-delay: 4s;"
+		></div>
 	</div>
 
 	<div class="relative z-10 flex {isMobile.current ? 'flex-col' : ''} h-screen">
@@ -144,26 +170,38 @@
 						? 'mt-auto max-w-32'
 						: 'max-w-2xl'} flex-1 transition-all duration-300"
 				>
-					<!-- Orbital paths -->
+					<!-- Enhanced Orbital paths with glow -->
 					{#each planetData as planet}
 						<div
-							class="border-opacity-30 absolute rounded-full border border-gray-600"
+							class="border-opacity-30 shadow-orbit absolute rounded-full border border-gray-600"
 							style="
 								width: {parseFloat(planet.distance) * 1.6}%;
 								height: {parseFloat(planet.distance) * 1.6}%;
 								left: {50 - parseFloat(planet.distance) * 0.8}%;
 								top: {50 - parseFloat(planet.distance) * 0.8}%;
+								box-shadow: inset 0 0 10px rgba(156, 163, 175, 0.2);
 								"
 						></div>
 					{/each}
 
-					<!-- Sun -->
+					<!-- Enhanced Sun with corona effect -->
 					<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform">
+						<!-- Corona layers -->
+						<div
+							class="animate-spin-slow bg-gradient-radial absolute inset-0 -top-8 -left-8 h-32 w-32 rounded-full from-red-500/20 via-orange-500/10 to-transparent"
+						></div>
+						<div
+							class="animate-spin-reverse bg-gradient-radial absolute inset-0 -top-6 -left-6 h-24 w-24 rounded-full from-yellow-500/30 via-red-500/20 to-transparent"
+						></div>
+
+						<!-- Main sun -->
 						<div
 							class="{isMobile.current && planetInfoOpen
 								? 'h-6 w-6'
-								: 'h-12 w-12'} animate-pulse rounded-full border-2 border-red-400 bg-gradient-to-r from-red-600 to-purple-600 shadow-2xl"
+								: 'h-12 w-12'} shadow-sun animate-pulse rounded-full border-2 border-red-400 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-500"
 						></div>
+
+						<!-- Pulsing ring -->
 						<div
 							class="absolute inset-0 -top-2 -left-2 h-16 w-16 animate-ping rounded-full border border-red-500 opacity-30"
 						></div>
@@ -172,18 +210,13 @@
 					<!-- Planets -->
 					{#each planetData as planet}
 						{@const position = getPlanetPosition(planet.distance, planet.angle)}
-						<button
-							class="absolute {isMobile.current && planetInfoOpen
-								? 'h-1 w-1'
-								: 'h-4 w-4 md:h-5 md:w-5'} {planet.color} focus:ring-opacity-50 -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full shadow-lg transition-all duration-500 hover:scale-110 focus:ring-2 focus:ring-white focus:outline-none"
-							style="left: {position.x}%; top: {position.y}%;"
-							onclick={() => selectPlanet(planet)}
-							aria-label="View details for {planet.name}"
-						>
-							<div
-								class="bg-gradient-radial h-full w-full rounded-full from-white/20 to-transparent"
-							></div>
-						</button>
+						<PlanetDisplay
+							{planet}
+							{position}
+							{factions}
+							isCompact={planetInfoOpen && isMobile.current}
+							onClick={() => selectPlanet(planet)}
+						/>
 					{/each}
 				</div>
 			</div>
@@ -225,12 +258,5 @@
 	</div>
 </div>
 
-<!-- <UserMenu /> -->
-
-<!-- <BattleUpload isOpen={battleUploadOpen} planets={planetData} /> -->
-
 <style>
-	.bg-gradient-radial {
-		background: radial-gradient(circle, var(--tw-gradient-stops));
-	}
 </style>

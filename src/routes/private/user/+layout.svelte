@@ -9,15 +9,39 @@
 <div
 	class="relative h-full w-full overflow-hidden bg-gradient-to-br from-gray-900 via-red-950 to-black"
 >
-	<!-- Stars background -->
+	<!-- Enhanced Stars background with twinkling -->
 	<div class="absolute inset-0 opacity-60">
-		{#each Array(100) as _, i}
+		{#each Array(150) as _, i}
 			<div
-				class="absolute h-1 w-1 animate-pulse rounded-full bg-white"
+				class="animate-twinkle absolute rounded-full bg-white"
+				class:w-0.5={i % 4 === 0}
+				class:h-0.5={i % 4 === 0}
+				class:w-1={i % 4 === 1}
+				class:h-1={i % 4 === 1}
+				class:w-1.5={i % 4 === 2}
+				class:h-1.5={i % 4 === 2}
+				class:w-px={i % 4 === 3}
+				class:h-px={i % 4 === 3}
 				style="left: {Math.random() * 100}%; top: {Math.random() *
-					100}%; animation-delay: {Math.random() * 3}s;"
+					100}%; animation-delay: {Math.random() * 4}s; animation-duration: {2 +
+					Math.random() * 3}s;"
 			></div>
 		{/each}
+	</div>
+
+	<!-- Nebula effects -->
+	<div class="absolute inset-0 opacity-20">
+		<div
+			class="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full bg-purple-600 blur-3xl filter"
+		></div>
+		<div
+			class="absolute right-1/4 bottom-1/3 h-80 w-80 animate-pulse rounded-full bg-blue-600 blur-3xl filter"
+			style="animation-delay: 2s;"
+		></div>
+		<div
+			class="absolute top-1/2 right-1/2 h-64 w-64 animate-pulse rounded-full bg-red-600 blur-3xl filter"
+			style="animation-delay: 4s;"
+		></div>
 	</div>
 
 	<div class="relative z-10 flex {mobile.current ? 'flex-col' : ''} h-screen">
