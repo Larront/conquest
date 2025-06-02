@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 
 	let { data } = $props();
-	let { session } = $derived(data);
+	let { user, factions } = $derived(data);
 
 	let activeTab = $state<'profile' | 'stats' | 'security'>('profile');
 	let isLoading = $state(false);
@@ -24,18 +24,6 @@
 	let total_points = $state(0);
 	let created_at = $state('');
 
-	const factions = [
-		'Astra Militarum',
-		'Space Marines',
-		'Chaos Space Marines',
-		'Orks',
-		'Eldar',
-		'Dark Eldar',
-		'Tau Empire',
-		'Necrons',
-		'Tyranids'
-	];
-
 	onMount(() => {
 		getProfile();
 	});
@@ -43,7 +31,6 @@
 	const getProfile = async () => {
 		try {
 			isLoading = true;
-			const { user } = session!;
 			const { data, error, status } = await supabase
 				.from('profiles')
 				.select(
@@ -203,7 +190,7 @@
 						bind:value={faction}
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
 					>
-						{#each factions as factionOption}
+						{#each factions!.name as factionOption}
 							<option value={factionOption}>{factionOption}</option>
 						{/each}
 					</select>

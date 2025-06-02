@@ -1,23 +1,14 @@
 <script lang="ts">
-	import { Sword, MapPin, Calendar, Skull } from '@lucide/svelte';
-	import * as Chart from '$lib/components/chart';
-	import { PieChart } from 'layerchart';
+	import { Sword, MapPin, Calendar, Skull, Shield } from '@lucide/svelte';
+	import { Legend, PieChart } from 'layerchart';
+	import { schemeTableau10 } from 'd3-scale-chromatic';
 	import type { Planet } from '$lib/types';
+
 	interface Props {
 		planet: Planet;
 	}
 
 	let { planet }: Props = $props();
-
-	let open = $state(false);
-
-	// Sample faction control data
-	const chartConfig = {
-		astra_militarum: { label: 'Astra Militarum', color: 'var(--chart-1)' },
-		chaos_space_marines: { label: 'Chaos Space Marines', color: 'var(--chart-2)' },
-		space_marines: { label: 'Space Marines', color: 'var(--chart-3)' },
-		contested: { label: 'Contested', color: 'var(--chart-4)' }
-	} satisfies Chart.ChartConfig;
 
 	const getResultColor = (result: string) => {
 		switch (result) {
@@ -86,22 +77,26 @@
 				<h3 class="mb-3 border-b border-red-600 pb-2 text-lg font-bold tracking-wider text-red-300">
 					++ TERRITORIAL CONTROL ++
 				</h3>
-				<div class="h-64">
-					<Chart.Container config={chartConfig} class="mx-auto aspect-square max-h-[250px]">
-						<PieChart
-							data={planet.faction_control}
-							key="faction"
-							value="value"
-							c="color"
-							innerRadius={60}
-							padding={28}
-							props={{ pie: { motion: 'tween' } }}
-						>
-							{#snippet tooltip()}
-								<Chart.Tooltip hideLabel />
-							{/snippet}
-						</PieChart>
-					</Chart.Container>
+				<div class="h-[256px] w-auto overflow-auto p-4">
+					<PieChart
+						data={planet.faction_control}
+						key="profile"
+						placement="center"
+						value="control"
+						cRange={schemeTableau10}
+						tooltip={false}
+					/>
+				</div>
+				<div class="ml-4 flex w-full flex-col">
+					{#each planet.faction_control as item, i}
+						<div class="mb-2 flex items-center">
+							<div
+								class="mr-2 h-4 w-4 rounded"
+								style="background-color: {schemeTableau10[i % schemeTableau10.length]}"
+							></div>
+							<span>{item.profile} - {item.control}%</span>
+						</div>
+					{/each}
 				</div>
 			</div>
 
@@ -123,10 +118,12 @@
 								<div class="flex flex-col gap-1">
 									<div class="flex items-center gap-2 text-xs">
 										<Calendar size={12} class="text-yellow-400" />
-										<span class="font-mono font-bold text-yellow-300">{battle.date}</span>
+										<span class="font-mono font-bold text-yellow-300"
+											>{battle.battle_date.split('T')[0]}</span
+										>
 									</div>
 									<div class="font-mono text-xs text-yellow-200">
-										<span class="text-red-300">{battle.type}</span>
+										<span class="text-red-300">{battle.battle_type}</span>
 										<span class="mx-2">•</span>
 										<span>{battle.points} pts</span>
 									</div>
@@ -138,11 +135,20 @@
 								</span>
 							</div>
 
-							<div class="flex items-center gap-2 text-xs">
-								<Sword size={12} class="text-red-400" />
-								<span class="font-bold text-red-400">{battle.attacker}</span>
-								<span class="text-gray-400">vs</span>
-								<span class="font-bold text-blue-400">{battle.defender}</span>
+							<div class="flex">
+								<div class="flex items-center gap-2 text-xs">
+									<Sword size={12} class="text-red-400" />
+									<span class="font-bold text-red-400">{battle.attacker}</span>
+									<span class="text-gray-400">vs</span>
+									<Shield size={12} class="text-blue-400" />
+									<span class="font-bold text-blue-400">{battle.defender}</span>
+								</div>
+
+								<div class="ml-auto flex items-center gap-2 text-xs">
+									<span class="font-bold text-red-400">{battle.attacker_points}</span>
+									<span class="text-gray-400">vs</span>
+									<span class="font-bold text-blue-400">{battle.defender_points}</span>
+								</div>
 							</div>
 						</div>
 					{/each}

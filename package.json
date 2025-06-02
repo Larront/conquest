@@ -46,6 +46,9 @@
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.49.8",
 		"bits-ui": "^2.4.0",
+		"d3-interpolate": "^3.0.1",
+		"d3-scale": "^4.0.2",
+		"d3-scale-chromatic": "^3.1.0",
 		"vaul-svelte": "^0.3.2"
 	}
 }

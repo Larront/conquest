@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { User, LogOut, Settings, Sword, Crown } from '@lucide/svelte';
+	import { User as UserIcon, LogOut, Settings, Sword, Crown } from '@lucide/svelte';
 	import { onMount } from 'svelte';
-	import type { Session } from '@supabase/supabase-js';
+	import type { User } from '@supabase/supabase-js';
 	import { supabase } from '$lib/supabaseClient';
 	import { Popover } from 'bits-ui';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { enhance } from '$app/forms';
 
 	interface Props {
-		session: Session;
+		user: User;
 	}
 
-	let { session }: Props = $props();
+	let { user }: Props = $props();
 
 	let loading = $state(false);
 	let username: string | null = $state(null);
@@ -27,7 +27,6 @@
 	const getProfile = async () => {
 		try {
 			loading = true;
-			const { user } = session;
 			const { data, error, status } = await supabase
 				.from('profiles')
 				.select('username, faction, battles_won, battles_lost, battles_drawn, total_points')
@@ -65,9 +64,8 @@
 	<Popover.Trigger
 		class=" flex items-center gap-2 rounded border border-yellow-600 bg-gray-900/80 px-3 py-2 text-yellow-200 transition-colors hover:cursor-pointer hover:bg-gray-800"
 	>
-		<User size={18} />
-		<span class="font-bold">Larront</span>
-		<div class="ml-1 h-2 w-2 rounded-full bg-green-400"></div>
+		<UserIcon size={18} />
+		<span class="font-bold">{username}</span>
 	</Popover.Trigger>
 	<Popover.Portal>
 		<Popover.Content side="left" class="z-50">
@@ -76,7 +74,7 @@
 				<div class="border-b border-gray-700 p-4">
 					<div class="flex items-center gap-3">
 						<div class="rounded-full bg-gradient-to-r from-red-600 to-purple-600 p-2">
-							<User class="text-white" size={18} />
+							<UserIcon class="text-white" size={18} />
 						</div>
 						<div>
 							<p class="font-bold text-yellow-200">{username}</p>

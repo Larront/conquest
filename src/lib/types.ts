@@ -18,45 +18,38 @@ export interface Planet {
 
 export interface Battle {
 	id: string;
-	date: string;
+	planet: string;
+	battle_type: string;
+	points: number;
 	attacker: string;
 	defender: string;
-	result: 'Attacker Victory' | 'Defender Victory' | 'Draw';
-	type: string;
-	points: number;
-	planet_id: string;
-	submitted_by: string;
-	created_at: string;
+	result: string;
 	description?: string;
-	images?: string[];
+	battle_date: string;
+	attacker_points: number;
+	defender_points: number;
 }
 
 export interface FactionControl {
-	faction: string;
-	value: number;
-	color: string;
+	planet: string;
+	profile: string;
+	control: number;
+}
+
+export interface Faction {
+	name: string;
+	allegiance: string;
+	icon: string;
 }
 
 export interface User {
 	id: string;
+	updated_at: string;
 	username: string;
-	email: string;
 	faction: string;
-	avatar?: string;
 	battles_won: number;
 	battles_lost: number;
 	battles_drawn: number;
 	total_points: number;
 	created_at: string;
-}
-
-export interface Campaign {
-	id: string;
-	name: string;
-	description: string;
-	start_date: string;
-	end_date?: string;
-	planets: Planet[];
-	participants: User[];
-	created_by: string;
 }

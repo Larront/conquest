@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-	import { X, User, Mail, Lock, Shield, LogIn, LoaderCircleIcon } from '@lucide/svelte';
+	import { X, User, Mail, Lock, Shield, LogIn, LoaderCircle } from '@lucide/svelte';
 
+	let { data } = $props();
+	let { factions } = $derived(data);
 	let mode: 'signin' | 'signup' = $state('signin');
 
 	// Form data
@@ -11,18 +13,6 @@
 	let faction = $state('Astra Militarum');
 
 	let isLoading = $state(false);
-
-	const factions = [
-		'Astra Militarum',
-		'Space Marines',
-		'Chaos Space Marines',
-		'Orks',
-		'Eldar',
-		'Dark Eldar',
-		'Tau Empire',
-		'Necrons',
-		'Tyranids'
-	];
 
 	function toggleMode() {
 		mode = mode === 'signin' ? 'signup' : 'signin';
@@ -127,7 +117,7 @@
 					class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
 				>
 					{#each factions as factionOption}
-						<option value={factionOption}>{factionOption}</option>
+						<option value={factionOption.name}>{factionOption.name}</option>
 					{/each}
 				</select>
 			</div>
@@ -140,7 +130,7 @@
 		>
 			{#if isLoading}
 				<div class="mx-auto flex gap-3">
-					<LoaderCircleIcon class="animate-spin" /> PROCESSING…
+					<LoaderCircle class="animate-spin" /> PROCESSING…
 				</div>
 			{:else}
 				<div class="mx-auto flex">

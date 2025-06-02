@@ -1,6 +1,12 @@
 import { redirect } from '@sveltejs/kit';
 
-import type { Actions } from './$types';
+import type { PageServerLoad, Actions } from '../$types';
+
+export const load: PageServerLoad = async ({ locals: { supabase } }) => {
+	const { data: factions } = await supabase.from('factions').select();
+
+	return { factions: factions ?? [] };
+};
 
 export const actions: Actions = {
 	signup: async ({ request, locals: { supabase } }) => {
@@ -37,6 +43,7 @@ export const actions: Actions = {
 			console.error(error);
 			redirect(303, '/auth/error');
 		} else {
+			console.log('Sign in successful');
 			redirect(303, '/');
 		}
 	}

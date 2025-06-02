@@ -3,9 +3,26 @@ import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
 	const { data: planets } = await supabase.from('planets').select();
-	const { session } = await safeGetSession();
+	const { data: battles } = await supabase.from('battles').select();
+	const { data: profiles } = await supabase.from('profiles').select();
+	const { data: control } = await supabase.from('control').select();
 
-	return { planets: planets ?? [], session };
+	console.log(control);
+	const { user } = await safeGetSession();
+
+	if (user == null) {
+		console.error('Error fetching user');
+	} else {
+		console.log('User:', user);
+	}
+
+	return {
+		planets: planets ?? [],
+		battles: battles ?? [],
+		profiles: profiles ?? [],
+		control: control ?? [],
+		user
+	};
 };
 
 export const actions: Actions = {

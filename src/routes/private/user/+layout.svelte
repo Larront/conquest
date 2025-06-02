@@ -29,7 +29,7 @@
 				>
 					<div class="flex items-center justify-between">
 						<div>
-							<h1 class="text-xl font-bold tracking-wider">DRAKONIS EXPANSE</h1>
+							<h1 class="text-xl font-bold tracking-wider">MALVERNIS SECTOR</h1>
 							<p class="text-xs tracking-wide opacity-75">+ IMPERIAL RECONNAISSANCE +</p>
 						</div>
 					</div>
@@ -38,7 +38,7 @@
 				<div
 					class="bg-opacity-75 absolute top-4 left-4 z-50 rounded border border-yellow-600 bg-black p-4 text-yellow-200"
 				>
-					<h1 class="mb-2 text-2xl font-bold tracking-wider">DRAKONIS EXPANSE</h1>
+					<h1 class="mb-2 text-2xl font-bold tracking-wider">MALVERNIS SECTOR</h1>
 					<p class="text-sm tracking-wide opacity-75">+ IMPERIAL RECONNAISSANCE PROTOCOL +</p>
 				</div>
 			{/if}
