@@ -6,6 +6,7 @@
 	import { Popover } from 'bits-ui';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { enhance } from '$app/forms';
+	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
 
 	interface Props {
 		user: User;
@@ -51,6 +52,8 @@
 		}
 	};
 
+	let isMobile = new IsMobile();
+
 	const handleSignOut: SubmitFunction = () => {
 		loading = true;
 		return async ({ update }) => {
@@ -68,7 +71,7 @@
 		<span class="font-bold">{username}</span>
 	</Popover.Trigger>
 	<Popover.Portal>
-		<Popover.Content side="left" class="z-50">
+		<Popover.Content side={isMobile ? 'bottom' : 'left'} class="z-50">
 			<div class="mt-4 mr-2 w-64 rounded border border-yellow-600 bg-gray-900 shadow-2xl">
 				<!-- User Info -->
 				<div class="border-b border-gray-700 p-4">
