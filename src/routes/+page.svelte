@@ -107,7 +107,7 @@
 				>
 					<div class="flex items-center justify-between">
 						<div>
-							<h1 class="text-xl font-bold tracking-wider">MALVERNIS SECTOR</h1>
+							<h1 class="{isMobile ? '' : 'text-xl'} font-bold tracking-wider">MALVERNIS SECTOR</h1>
 							<p class="text-xs tracking-wide opacity-75">+ IMPERIAL RECONNAISSANCE +</p>
 						</div>
 					</div>
@@ -116,9 +116,10 @@
 						{isMobile.current ? 'flex-col' : ''}
 						items-center justify-between gap-2"
 					>
-						{#if user}
+						{#if !user}
 							<a
-								class=" flex items-center gap-2 rounded border border-yellow-600 bg-gray-900/80 px-3 py-2 text-yellow-200 transition-colors hover:cursor-pointer hover:bg-gray-800"
+								class="{isMobile ? 'text-xs' : ''}
+									flex items-center gap-2 rounded border border-yellow-600 bg-gray-900/80 px-3 py-2 text-yellow-200 transition-colors hover:cursor-pointer hover:bg-gray-800"
 								href="/private/upload"
 							>
 								<Plus size={18} />
