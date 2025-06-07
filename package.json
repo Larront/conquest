@@ -45,6 +45,7 @@
 	"dependencies": {
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.49.8",
+		"@sveltejs/adapter-vercel": "^5.7.2",
 		"bits-ui": "^2.4.0",
 		"d3-interpolate": "^3.0.1",
 		"d3-scale": "^4.0.2",
