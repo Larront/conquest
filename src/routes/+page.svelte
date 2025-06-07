@@ -116,7 +116,7 @@
 						{isMobile.current ? 'flex-col' : ''}
 						items-center justify-between gap-2"
 					>
-						{#if !user}
+						{#if user}
 							<a
 								class="{isMobile ? 'text-xs' : ''}
 									flex items-center gap-2 rounded border border-yellow-600 bg-gray-900/80 px-3 py-2 text-yellow-200 transition-colors hover:cursor-pointer hover:bg-gray-800"
