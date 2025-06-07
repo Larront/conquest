@@ -6,9 +6,6 @@
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 	import PlanetDisplay from '$lib/components/planet/PlanetDisplay.svelte';
-	import { Tween } from 'svelte/motion';
-	import { cubicInOut, linear } from 'svelte/easing';
-	import { onMount } from 'svelte';
 
 	let selectedPlanet: Planet | undefined = $state();
 	let planetInfoOpen = $state(false);
@@ -114,7 +111,11 @@
 							<p class="text-xs tracking-wide opacity-75">+ IMPERIAL RECONNAISSANCE +</p>
 						</div>
 					</div>
-					<div class="ml-auto flex items-center justify-between gap-2">
+					<div
+						class="ml-auto flex
+						{isMobile.current ? 'flex-col' : ''}
+						items-center justify-between gap-2"
+					>
 						{#if user}
 							<a
 								class=" flex items-center gap-2 rounded border border-yellow-600 bg-gray-900/80 px-3 py-2 text-yellow-200 transition-colors hover:cursor-pointer hover:bg-gray-800"
