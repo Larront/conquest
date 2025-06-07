@@ -1,11 +1,14 @@
 <script lang="ts">
 	import '../app.css';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 
 	let { data, children } = $props();
 	let { session, supabase } = $derived(data);
+
+	injectAnalytics();
 
 	onMount(() => {
 		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
@@ -17,5 +20,9 @@
 		return () => data.subscription.unsubscribe();
 	});
 </script>
+
+<svelte:head>
+	<title>Examinis</title>
+</svelte:head>
 
 {@render children()}
