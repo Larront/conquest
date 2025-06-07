@@ -156,7 +156,12 @@
 		{/if}
 
 		{#if activeTab === 'profile'}
-			<form class="space-y-6">
+			<form
+				class="space-y-6"
+				method="POST"
+				action={'?/updateuser'}
+				onsubmit={() => (isLoading = true)}
+			>
 				<div class="grid gap-6 md:grid-cols-2">
 					<div>
 						<label for="edit-username" class="mb-2 block text-sm font-bold text-yellow-300">
@@ -164,6 +169,7 @@
 						</label>
 						<input
 							id="edit-username"
+							name="username"
 							type="text"
 							bind:value={username}
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
@@ -172,31 +178,20 @@
 					</div>
 
 					<div>
-						<label for="edit-email" class="mb-2 block text-sm font-bold text-yellow-300">
-							VOX TRANSMISSION CODE
+						<label for="edit-faction" class="mb-2 block text-sm font-bold text-yellow-300">
+							ALLEGIANCE
 						</label>
-						<input
-							id="edit-email"
-							type="email"
+						<select
+							id="edit-faction"
+							name="faction"
+							bind:value={faction}
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
-							required
-						/>
+						>
+							{#each factions! as factionOption}
+								<option value={factionOption.name}>{factionOption.name}</option>
+							{/each}
+						</select>
 					</div>
-				</div>
-
-				<div>
-					<label for="edit-faction" class="mb-2 block text-sm font-bold text-yellow-300">
-						ALLEGIANCE
-					</label>
-					<select
-						id="edit-faction"
-						bind:value={faction}
-						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
-					>
-						{#each factions! as factionOption}
-							<option value={factionOption.name}>{factionOption.name}</option>
-						{/each}
-					</select>
 				</div>
 
 				<button
@@ -291,7 +286,12 @@
 				</div>
 			</div>
 		{:else if activeTab === 'security'}
-			<form class="space-y-6">
+			<form
+				class="space-y-6"
+				method="POST"
+				action={'?/updatepassword'}
+				onsubmit={() => (isLoading = true)}
+			>
 				<div class="rounded border border-red-600 bg-red-900/10 p-4">
 					<h3 class="mb-2 text-lg font-bold text-red-300">Change Authorization Cipher</h3>
 					<p class="text-sm text-gray-400">
@@ -357,7 +357,7 @@
 					class="flex items-center gap-2 rounded bg-gradient-to-r from-red-700 to-red-600 px-4 py-2 font-bold text-yellow-100 transition-colors hover:from-red-600 hover:to-red-500 disabled:opacity-50"
 				>
 					<Shield size={18} />
-					{isLoading && confirmPassword != newPassword ? 'UPDATING...' : 'UPDATE CIPHER'}
+					{isLoading ? 'UPDATING...' : 'UPDATE CIPHER'}
 				</button>
 			</form>
 		{/if}

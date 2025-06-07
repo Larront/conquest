@@ -1,4 +1,4 @@
-import { redirect, type Actions } from '@sveltejs/kit';
+import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 };
 
 export const actions: Actions = {
-	update: async ({ request, locals: { supabase, safeGetSession } }) => {
+	updatepassword: async ({ request, locals: { supabase, safeGetSession } }) => {
 		const formData = await request.formData();
 		const { user } = await safeGetSession();
 		const current_password = formData.get('current-password') as string;
@@ -32,5 +32,25 @@ export const actions: Actions = {
 		} else {
 			redirect(303, '/');
 		}
+	},
+	updateuser: async ({ request, locals: { supabase, safeGetSession } }) => {
+		const formData = await request.formData();
+		const { user } = await safeGetSession();
+
+		const user_meta = {
+			username: formData.get('username') as string,
+			faction: formData.get('faction') as string
+		};
+
+		console.log(user_meta);
+		console.log(user.id);
+		const { error } = await supabase.from('profiles').update(user_meta).eq('id', user.id);
+
+		if (error) {
+			console.log('Failed to update user', error);
+			return fail(500, { error: 'Failed to update user' });
+		}
+
+		redirect(303, '/');
 	}
 };
