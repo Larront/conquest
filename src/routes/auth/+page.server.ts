@@ -23,14 +23,15 @@ export const actions: Actions = {
 				data: {
 					faction: faction,
 					username: username
-				}
+				},
+				emailRedirectTo: 'http://localhost:5173/auth'
 			}
 		});
 		if (error) {
 			console.error(error);
 			redirect(303, '/auth/error');
 		} else {
-			redirect(303, '/');
+			redirect(303, '/auth/acknowledge');
 		}
 	},
 	login: async ({ request, locals: { supabase } }) => {

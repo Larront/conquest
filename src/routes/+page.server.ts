@@ -8,11 +8,10 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 	const { data: control } = await supabase.from('control').select();
 	const { data: factions } = await supabase.from('factions').select();
 
-	console.log(control);
 	const { user } = await safeGetSession();
 
 	if (user == null) {
-		console.error('Error fetching user');
+		console.error('No User found');
 	} else {
 		console.log('User:', user);
 	}

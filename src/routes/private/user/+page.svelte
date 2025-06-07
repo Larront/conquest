@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
-	import { X, User, Shield, Sword, Trophy, Calendar, Save } from '@lucide/svelte';
+	import type { Faction, User } from '$lib/types.js';
+	import { X, Shield, UserIcon, Sword, Trophy, Calendar, Save } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 
 	let { data } = $props();
-	let { user, factions } = $derived(data);
+	let { user, factions }: { user: User; factions: Faction[] | null } = $derived(data);
 
 	let activeTab = $state<'profile' | 'stats' | 'security'>('profile');
 	let isLoading = $state(false);
@@ -23,6 +24,8 @@
 	let battles_drawn = $state(0);
 	let total_points = $state(0);
 	let created_at = $state('');
+
+	let matching_passwords = $derived(confirmPassword == newPassword);
 
 	onMount(() => {
 		getProfile();
@@ -86,7 +89,7 @@
 		class="flex items-center justify-between rounded-t-lg border-b-2 border-yellow-600 bg-gradient-to-r from-red-900 via-gray-900 to-red-900 p-4"
 	>
 		<div class="flex items-center gap-3">
-			<User class="text-yellow-400" size={24} />
+			<UserIcon class="text-yellow-400" size={24} />
 			<div>
 				<h2 class="text-xl font-bold tracking-wider text-yellow-200">++ SERVITOR RECORDS ++</h2>
 				<p class="text-sm text-yellow-300">{username} • {faction}</p>
@@ -109,7 +112,7 @@
 				? 'border-b-2 border-yellow-500 text-yellow-300'
 				: 'text-gray-400 hover:text-yellow-200'}"
 		>
-			<User size={16} />
+			<UserIcon size={16} />
 			Profile
 		</button>
 		<button
@@ -190,8 +193,8 @@
 						bind:value={faction}
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
 					>
-						{#each factions!.name as factionOption}
-							<option value={factionOption}>{factionOption}</option>
+						{#each factions! as factionOption}
+							<option value={factionOption.name}>{factionOption.name}</option>
 						{/each}
 					</select>
 				</div>
@@ -303,6 +306,7 @@
 						</label>
 						<input
 							id="current-password"
+							name="current-password"
 							type="password"
 							bind:value={currentPassword}
 							placeholder="Enter current password..."
@@ -317,6 +321,7 @@
 						</label>
 						<input
 							id="new-password"
+							name="new-password"
 							type="password"
 							bind:value={newPassword}
 							placeholder="Enter new password..."
@@ -331,6 +336,7 @@
 						</label>
 						<input
 							id="confirm-password"
+							name="confirm-password"
 							type="password"
 							bind:value={confirmPassword}
 							placeholder="Confirm new password..."
@@ -338,15 +344,20 @@
 							required
 						/>
 					</div>
+					{#if !matching_passwords}
+						<div class="rounded border border-red-600 bg-red-900/10 p-4">
+							<p class="text-sm text-gray-400">Error: Ciphers do not match.</p>
+						</div>
+					{/if}
 				</div>
 
 				<button
 					type="submit"
-					disabled={isLoading}
+					disabled={isLoading || !matching_passwords}
 					class="flex items-center gap-2 rounded bg-gradient-to-r from-red-700 to-red-600 px-4 py-2 font-bold text-yellow-100 transition-colors hover:from-red-600 hover:to-red-500 disabled:opacity-50"
 				>
 					<Shield size={18} />
-					{isLoading ? 'UPDATING...' : 'UPDATE CIPHER'}
+					{isLoading && confirmPassword != newPassword ? 'UPDATING...' : 'UPDATE CIPHER'}
 				</button>
 			</form>
 		{/if}
