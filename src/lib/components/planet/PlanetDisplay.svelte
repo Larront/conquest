@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Faction, Planet, User } from '$lib/types';
+	import type { Faction, Planet } from '$lib/types';
 
 	interface Props {
 		planet: Planet;
