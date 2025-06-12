@@ -24,7 +24,7 @@ export const actions: Actions = {
 					faction: faction,
 					username: username
 				},
-				emailRedirectTo: 'http://www.examinis.larront.com/auth'
+				emailRedirectTo: 'http://www.exanimis.larront.com/auth'
 			}
 		});
 		if (error) {

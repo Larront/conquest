@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>Examinis</title>
+	<title>Exanimis</title>
 </svelte:head>
 
 {@render children()}
