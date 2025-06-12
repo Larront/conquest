@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Sword, MapPin, Calendar, Skull, Shield } from '@lucide/svelte';
-	import { Legend, PieChart } from 'layerchart';
+	import { PieChart } from 'layerchart';
 	import { schemeTableau10 } from 'd3-scale-chromatic';
 	import type { Planet } from '$lib/types';
 
