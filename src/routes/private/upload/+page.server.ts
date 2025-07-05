@@ -57,6 +57,19 @@ export const actions: Actions = {
 		const winner = battle.result === 'Attacker Victory' ? battle.attacker : battle.defender;
 		const loser = battle.result === 'Attacker Victory' ? battle.defender : battle.attacker;
 
+		const { error: profileError } = await supabase.rpc('update_battle_stats', {
+			winner_id: winner,
+			loser_id: loser,
+			is_draw: result === 'Draw',
+			winner_points: battle.result === 'Attacker Victory' ? attackerPoints : defenderPoints,
+			loser_points: battle.result === 'Attacker Victory' ? defenderPoints : attackerPoints
+		});
+
+		if (profileError) {
+			console.log('Failed to update profiles', profileError);
+			return fail(500, { error: 'Failed to update profiles' });
+		}
+
 		const { data: control, error: controlError } = await supabase
 			.from('control')
 			.select()
@@ -99,7 +112,6 @@ export const actions: Actions = {
 
 		const updates = [];
 
-		// 4️⃣ Apply control logic
 		if (contestedControl && contestedControl.control >= 10) {
 			updates.push({
 				id: winnerControl.id,
@@ -120,7 +132,6 @@ export const actions: Actions = {
 			});
 		}
 
-		// 5️⃣ Update control values
 		for (const update of updates) {
 			const { error } = await supabase
 				.from('control')
