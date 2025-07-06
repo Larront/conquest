@@ -1,16 +1,22 @@
 <script lang="ts">
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-	import { X, User, Mail, Lock, Shield, LoaderCircle } from '@lucide/svelte';
-	import SuperDebug, { superForm } from 'sveltekit-superforms';
+	import { X, User, Mail, Lock, Shield, LoaderCircle, EyeOff, Eye } from '@lucide/svelte';
+	import { superForm } from 'sveltekit-superforms';
 
 	let { data } = $props();
 	let { factions } = $derived(data);
 	let mode: 'signin' | 'signup' = $state('signin');
 
-	const { form, errors, constraints, message, enhance, delayed } = superForm(data.form);
+	const { form, errors, message, enhance, delayed } = superForm(data.form);
 
 	function toggleMode() {
 		mode = mode === 'signin' ? 'signup' : 'signin';
+	}
+
+	let showPassword = $state(false);
+
+	function togglePasswordVisibility() {
+		showPassword = !showPassword;
 	}
 
 	const mobile = new IsMobile();
@@ -36,6 +42,11 @@
 			<X size={20} />
 		</a>
 	</div>
+	{#if data.successMessage}
+		<div class="mb-4 rounded border border-green-500 bg-green-900/20 p-3 text-sm text-green-300">
+			{data.successMessage}
+		</div>
+	{/if}
 	{#if $message}
 		<div class="mb-4 rounded border border-red-500 bg-red-900/20 p-3 text-sm text-red-300">
 			{$message}
@@ -97,12 +108,23 @@
 				<input
 					id="password"
 					name="password"
-					type="password"
+					type={showPassword ? 'text' : 'password'}
 					aria-invalid={$errors.password ? 'true' : undefined}
 					bind:value={$form.password}
 					placeholder="Enter password..."
 					class="w-full rounded border border-gray-600 bg-gray-800 py-2 pr-4 pl-10 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
 				/>
+				<button
+					type="button"
+					onclick={togglePasswordVisibility}
+					class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-green-300"
+				>
+					{#if showPassword}
+						<Eye size={18} />
+					{:else}
+						<EyeOff size={18} />
+					{/if}
+				</button>
 			</div>
 			{#if $errors.password}
 				<p class="mt-1 text-sm text-red-400">{$errors.password}</p>
@@ -147,7 +169,7 @@
 			{/if}
 		</button>
 
-		<div class="border-t border-gray-700 pt-4 text-center">
+		<div class="space-y-3 border-t border-gray-700 pt-4 text-center">
 			<button
 				type="button"
 				onclick={toggleMode}
@@ -157,6 +179,14 @@
 					? 'New Recruit? Request Enlistment Authorization'
 					: 'Already Enlisted? Access Terminal'}
 			</button>
+
+			{#if mode === 'signin'}
+				<div>
+					<a href="/auth/reset" class="text-sm text-gray-400 transition-colors hover:text-red-300">
+						Authorization Cipher Compromised? Request Recovery
+					</a>
+				</div>
+			{/if}
 		</div>
 	</form>
 </div>

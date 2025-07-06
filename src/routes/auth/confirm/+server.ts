@@ -57,14 +57,14 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, request }
 	redirectTo.searchParams.delete('type');
 
 	if (!token_hash) {
-		console.error('Email verification failed: Missing token_hash parameter');
+		console.error('verification failed: Missing token_hash parameter');
 		redirectTo.pathname = '/auth/error';
 		redirectTo.searchParams.set('reason', 'missing_token');
 		redirect(303, redirectTo);
 	}
 
 	if (!type) {
-		console.error('Email verification failed: Missing type parameter');
+		console.error('verification failed: Missing type parameter');
 		redirectTo.pathname = '/auth/error';
 		redirectTo.searchParams.set('reason', 'missing_type');
 		redirect(303, redirectTo);
@@ -74,7 +74,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, request }
 		const { error, data } = await supabase.auth.verifyOtp({ type, token_hash });
 
 		if (!error) {
-			console.log('Email verification successful:', {
+			console.log('Verification successful:', {
 				user_id: data.user?.id,
 				email: data.user?.email,
 				redirecting_to: redirectTo.toString()
@@ -82,7 +82,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, request }
 			redirectTo.searchParams.delete('next');
 			redirect(303, redirectTo);
 		} else {
-			console.error('Email verification failed:', {
+			console.error('Verification failed:', {
 				error: error.message,
 				status: error.status,
 				code: error instanceof AuthError ? 'AUTH_ERROR' : 'UNKNOWN_ERROR',
@@ -111,7 +111,7 @@ export const GET: RequestHandler = async ({ url, locals: { supabase }, request }
 	}
 
 	// This should never be reached, but keeping as fallback
-	console.error('Email verification reached unexpected fallback case');
+	console.error('Verification reached unexpected fallback case');
 	redirectTo.pathname = '/auth/error';
 	redirectTo.searchParams.set('reason', 'unexpected_fallback');
 	redirect(303, redirectTo);

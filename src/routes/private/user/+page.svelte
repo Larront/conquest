@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
 	import type { Faction, User } from '$lib/types.js';
-	import { X, Shield, UserIcon, Sword, Trophy, Calendar, Save } from '@lucide/svelte';
+	import { X, Shield, UserIcon, Sword, Trophy, Calendar, Save, EyeOff, Eye } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 
@@ -32,6 +32,22 @@
 	let battles_drawn = $state(0);
 	let total_points = $state(0);
 	let created_at = $state('');
+
+	let showPassword = $state(false);
+	let showNewPassword = $state(false);
+	let showConfirmPassword = $state(false);
+
+	function togglePasswordVisibility() {
+		showPassword = !showPassword;
+	}
+
+	function toggleNewPasswordVisibility() {
+		showNewPassword = !showNewPassword;
+	}
+
+	function toggleConfirmPasswordVisibility() {
+		showConfirmPassword = !showConfirmPassword;
+	}
 
 	onMount(() => {
 		getProfile();
@@ -304,12 +320,23 @@
 						<input
 							id="current-password"
 							name="current-password"
-							type="password"
+							type={showPassword ? 'text' : 'password'}
 							aria-invalid={$passwordErrors.currentPassword ? 'true' : undefined}
 							bind:value={$passwordForm.currentPassword}
 							placeholder="Enter current password..."
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
 						/>
+						<button
+							type="button"
+							onclick={togglePasswordVisibility}
+							class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-green-300"
+						>
+							{#if showPassword}
+								<EyeOff size={18} />
+							{:else}
+								<Eye size={18} />
+							{/if}
+						</button>
 					</div>
 
 					<div>
@@ -319,12 +346,23 @@
 						<input
 							id="new-password"
 							name="new-password"
-							type="password"
+							type={showNewPassword ? 'text' : 'password'}
 							aria-invalid={$passwordErrors.newPassword ? 'true' : undefined}
 							bind:value={$passwordForm.newPassword}
 							placeholder="Enter new password..."
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
 						/>
+						<button
+							type="button"
+							onclick={toggleNewPasswordVisibility}
+							class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-green-300"
+						>
+							{#if showNewPassword}
+								<EyeOff size={18} />
+							{:else}
+								<Eye size={18} />
+							{/if}
+						</button>
 					</div>
 
 					<div>
@@ -334,12 +372,23 @@
 						<input
 							id="confirm-password"
 							name="confirm-password"
-							type="password"
+							type={showConfirmPassword ? 'text' : 'password'}
 							aria-invalid={$passwordErrors.confirmPassword ? 'true' : undefined}
 							bind:value={$passwordForm.confirmPassword}
 							placeholder="Confirm new password..."
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
 						/>
+						<button
+							type="button"
+							onclick={toggleConfirmPasswordVisibility}
+							class="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-green-300"
+						>
+							{#if showConfirmPassword}
+								<EyeOff size={18} />
+							{:else}
+								<Eye size={18} />
+							{/if}
+						</button>
 					</div>
 				</div>
 

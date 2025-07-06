@@ -108,6 +108,28 @@ export const passwordUpdateSchema = z
 		path: ['confirmPassword']
 	});
 
+// Password Reset Request Validation Schema
+export const passwordResetRequestSchema = z.object({
+	email: z.email({ pattern: z.regexes.unicodeEmail })
+});
+
+// Password Reset Confirmation Validation Schema
+export const passwordResetConfirmSchema = z
+	.object({
+		newPassword: z
+			.string()
+			.min(8, 'Password must be at least 8 characters')
+			.regex(
+				/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+				'Password must contain at least one lowercase letter, one uppercase letter, and one number'
+			),
+		confirmPassword: z.string()
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: 'New password and confirmation must match',
+		path: ['confirmPassword']
+	});
+
 // Helper function to sanitize text input (prevent XSS)
 export function sanitizeText(text: string): string {
 	return text
@@ -123,3 +145,5 @@ export type UserCreationData = z.infer<typeof userCreationSchema>;
 export type BattleUploadData = z.infer<typeof battleUploadSchema>;
 export type UserProfileData = z.infer<typeof userUpdateSchema>;
 export type PasswordUpdateData = z.infer<typeof passwordUpdateSchema>;
+export type PasswordResetRequestData = z.infer<typeof passwordResetRequestSchema>;
+export type PasswordResetConfirmData = z.infer<typeof passwordResetConfirmSchema>;
