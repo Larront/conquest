@@ -2,13 +2,23 @@ import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
-	const { data: planets } = await supabase.from('planets').select();
-	const { data: battles } = await supabase.from('battles').select();
-	const { data: profiles } = await supabase.from('profiles').select();
-	const { data: control } = await supabase.from('control').select();
-	const { data: factions } = await supabase.from('factions').select();
-
-	const { user } = await safeGetSession();
+	// Run database queries in parallel for better performance
+	// Only select needed fields to reduce data transfer
+	const [
+		{ data: planets },
+		{ data: battles },
+		{ data: profiles },
+		{ data: control },
+		{ data: factions },
+		{ user }
+	] = await Promise.all([
+		supabase.from('planets').select(), // All fields needed for planet display
+		supabase.from('battles').select(), // All fields needed for battle history
+		supabase.from('profiles').select('id, faction, username'), // Only fields used in frontend
+		supabase.from('control').select(), // All fields needed for faction control
+		supabase.from('factions').select('name, allegiance'), // Only fields used in frontend
+		safeGetSession()
+	]);
 
 	if (user == null) {
 		console.error('No User found');

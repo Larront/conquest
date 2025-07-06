@@ -1,11 +1,14 @@
 <script lang="ts">
 	import type { Planet } from '$lib/types';
-	import PlanetInfo from '$lib/components/planet/PlanetInfo.svelte';
 	import { LogIn, Plus, X } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 	import PlanetDisplay from '$lib/components/planet/PlanetDisplay.svelte';
+
+	// Lazy load PlanetInfo component to reduce initial bundle size
+	let PlanetInfo: any = $state();
+	let isPlanetInfoLoading = $state(false);
 
 	let selectedPlanet: Planet | undefined = $state();
 	let planetInfoOpen = $state(false);
@@ -41,9 +44,22 @@
 		}))
 	);
 
-	function selectPlanet(planet: Planet) {
+	async function selectPlanet(planet: Planet) {
 		selectedPlanet = planet;
 		planetInfoOpen = true;
+
+		// Lazy load PlanetInfo component if not already loaded
+		if (!PlanetInfo && !isPlanetInfoLoading) {
+			isPlanetInfoLoading = true;
+			try {
+				const module = await import('$lib/components/planet/PlanetInfo.svelte');
+				PlanetInfo = module.default;
+			} catch (error) {
+				console.error('Failed to load PlanetInfo component:', error);
+			} finally {
+				isPlanetInfoLoading = false;
+			}
+		}
 	}
 
 	function getPlanetPosition(distance: string, angle: number) {
@@ -237,7 +253,18 @@
 				>
 					<X size={20} />
 				</button>
-				<PlanetInfo planet={selectedPlanet!} />
+				{#if isPlanetInfoLoading}
+					<div class="flex h-64 items-center justify-center">
+						<div class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"></div>
+						<span class="ml-2 text-yellow-300">Loading planet details...</span>
+					</div>
+				{:else if PlanetInfo && selectedPlanet}
+					<PlanetInfo planet={selectedPlanet} />
+				{:else}
+					<div class="flex h-64 items-center justify-center text-yellow-300">
+						<span>Failed to load planet details</span>
+					</div>
+				{/if}
 			</div>
 		{/if}
 
@@ -254,7 +281,18 @@
 				>
 					<X size={20} />
 				</button>
-				<PlanetInfo planet={selectedPlanet!} />
+				{#if isPlanetInfoLoading}
+					<div class="flex h-64 items-center justify-center">
+						<div class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"></div>
+						<span class="ml-2 text-yellow-300">Loading planet details...</span>
+					</div>
+				{:else if PlanetInfo && selectedPlanet}
+					<PlanetInfo planet={selectedPlanet} />
+				{:else}
+					<div class="flex h-64 items-center justify-center text-yellow-300">
+						<span>Failed to load planet details</span>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>

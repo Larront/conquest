@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Faction, Planet } from '$lib/types';
+	import { useIntersectionObserver } from '$lib/hooks/use-intersection-observer.svelte.js';
 
 	interface Props {
 		planet: Planet;
@@ -10,6 +11,40 @@
 	}
 
 	let { planet, position, factions, isCompact, onClick }: Props = $props();
+
+	// Performance optimization: only render detailed planet if likely to be visible
+	// For very distant planets or on small screens, show simplified version initially
+	let shouldRenderDetailed = $state(true);
+	let planetElement: HTMLElement;
+
+	// Check if planet should be rendered in detail based on distance and viewport
+	$effect(() => {
+		if (typeof window !== 'undefined') {
+			const distance = parseFloat(planet.distance);
+			const viewportWidth = window.innerWidth;
+			const viewportHeight = window.innerHeight;
+			const minDimension = Math.min(viewportWidth, viewportHeight);
+			
+			// On small screens, only render detailed planets that are closer
+			if (minDimension < 768 && distance > 60) {
+				shouldRenderDetailed = false;
+			} else if (distance > 90) {
+				// Very distant planets get simplified rendering initially
+				shouldRenderDetailed = false;
+			}
+		}
+	});
+
+	// Intersection observer for upgrading simplified planets to detailed
+	const { manager } = useIntersectionObserver({ rootMargin: '100px' });
+	
+	$effect(() => {
+		if (planetElement && manager && !shouldRenderDetailed) {
+			manager.observe(planetElement, () => {
+				shouldRenderDetailed = true;
+			});
+		}
+	});
 
 	// Planet type configurations for visual variety
 	const planetTypes = {
@@ -73,14 +108,25 @@
 
 	// Animation delays for atmospheric effects
 	const animationDelay = Math.random() * 3;
+
+	// Set up intersection observer
+	$effect(() => {
+		if (planetElement && manager) {
+			manager.observe(planetElement, () => {
+				isVisible = true;
+			});
+		}
+	});
 </script>
 
 <button
+	bind:this={planetElement}
 	class="group absolute -translate-x-1/2 -translate-y-1/2 transform cursor-pointer rounded-full transition-all duration-300 hover:scale-125 focus:ring-2 focus:ring-white focus:outline-none"
 	style="left: {position.x}%; top: {position.y}%;"
 	onclick={onClick}
 	aria-label="View details for {planet.name}"
 >
+	{#if shouldRenderDetailed}
 	<!-- Outer glow effect -->
 	<div
 		class="absolute -translate-x-1/2 -translate-y-1/2 transform animate-pulse rounded-full opacity-40 blur-sm {glowSize}"
@@ -180,6 +226,13 @@
 		<div
 			class="animate-spin-slow absolute -translate-x-[4px] -translate-y-[calc(100%-4px)] rounded-full border-2"
 			style="width: calc(100% + 8px); height: calc(100% + 8px); border-color: {ringColor}60; animation-duration: 8s;"
+		></div>
+	{/if}
+	{:else}
+		<!-- Simple placeholder when not visible - minimal rendering -->
+		<div
+			class="relative rounded-full {planetSize} bg-gray-600 opacity-60"
+			style="background: radial-gradient(circle at 30% 30%, #666, #333 70%);"
 		></div>
 	{/if}
 </button>

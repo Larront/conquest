@@ -5,10 +5,17 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
-	const { user } = await safeGetSession();
+	// Run user session and factions query in parallel
+	const [
+		{ user },
+		{ data: factions }
+	] = await Promise.all([
+		safeGetSession(),
+		supabase.from('factions').select('name') // Only field needed for dropdown
+	]);
+
 	const passwordForm = await superValidate(zod4(passwordUpdateSchema));
 	const userForm = await superValidate(zod4(userUpdateSchema));
-	const { data: factions } = await supabase.from('factions').select();
 
 	return { user, factions, passwordForm, userForm };
 };

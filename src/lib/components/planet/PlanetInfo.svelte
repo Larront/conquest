@@ -1,7 +1,20 @@
 <script lang="ts">
 	import { Sword, MapPin, Calendar, Skull, Shield } from '@lucide/svelte';
-	import { PieChart } from 'layerchart';
-	import { schemeTableau10 } from 'd3-scale-chromatic';
+	// Dynamic import for d3-scale-chromatic to reduce initial bundle size
+	let schemeTableau10: string[] = $state([]);
+
+	// Load color scheme dynamically
+	$effect(() => {
+		import('d3-scale-chromatic')
+			.then((module) => {
+				schemeTableau10 = module.schemeTableau10;
+			})
+			.catch((error) => {
+				console.error('Failed to load color scheme:', error);
+				// Fallback color scheme
+				schemeTableau10 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+			});
+	});
 	import type { Planet } from '$lib/types';
 
 	interface Props {
@@ -9,6 +22,35 @@
 	}
 
 	let { planet }: Props = $props();
+
+	// Dynamic import for PieChart to reduce initial bundle size
+	let PieChart: any = $state();
+	let isChartLoading = $state(true);
+
+	// Load PieChart dynamically when component mounts
+	$effect(() => {
+		import('layerchart')
+			.then((module) => {
+				PieChart = module.PieChart;
+				updateChartLoadingState();
+			})
+			.catch((error) => {
+				console.error('Failed to load PieChart:', error);
+				updateChartLoadingState();
+			});
+	});
+
+	// Update loading state when both chart and colors are ready
+	function updateChartLoadingState() {
+		isChartLoading = !(PieChart && schemeTableau10.length > 0);
+	}
+
+	// Watch for color scheme changes
+	$effect(() => {
+		if (schemeTableau10.length > 0) {
+			updateChartLoadingState();
+		}
+	});
 
 	const getResultColor = (result: string) => {
 		switch (result) {
@@ -78,14 +120,25 @@
 					++ TERRITORIAL CONTROL ++
 				</h3>
 				<div class="h-[256px] w-auto overflow-auto p-4">
-					<PieChart
-						data={planet.faction_control}
-						key="profile"
-						placement="center"
-						value="control"
-						cRange={schemeTableau10}
-						tooltip={false}
-					/>
+					{#if isChartLoading}
+						<div class="flex h-full items-center justify-center">
+							<div class="h-8 w-8 animate-spin rounded-full border-2 border-red-400 border-t-transparent"></div>
+							<span class="ml-2 text-sm text-red-300">Loading chart...</span>
+						</div>
+					{:else if PieChart}
+						<PieChart
+							data={planet.faction_control}
+							key="profile"
+							placement="center"
+							value="control"
+							cRange={schemeTableau10}
+							tooltip={false}
+						/>
+					{:else}
+						<div class="flex h-full items-center justify-center text-red-300">
+							<span class="text-sm">Failed to load chart</span>
+						</div>
+					{/if}
 				</div>
 				<div class="ml-4 flex w-full flex-col">
 					{#each planet.faction_control as item, i}

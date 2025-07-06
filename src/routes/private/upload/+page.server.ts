@@ -5,8 +5,14 @@ import { zod4 } from 'sveltekit-superforms/adapters';
 import { battleUploadSchema, sanitizeText } from '$lib/validation';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
-	const { data: planets } = await supabase.from('planets').select();
-	const { data: profiles } = await supabase.from('profiles').select();
+	// Run database queries in parallel and select only needed fields
+	const [
+		{ data: planets },
+		{ data: profiles }
+	] = await Promise.all([
+		supabase.from('planets').select('id, name'), // Only fields needed for dropdown
+		supabase.from('profiles').select('id, username, faction') // Only fields needed for selection
+	]);
 
 	const form = await superValidate(
 		{ selectedPlanet: 1, battleDate: new Date().toISOString(), points: 500 },
