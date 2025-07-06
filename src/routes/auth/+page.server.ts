@@ -23,7 +23,6 @@ export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
 export const actions: Actions = {
 	signup: async ({ request, locals: { supabase }, url }) => {
 		const form = await superValidate(request, zod4(userCreationSchema));
-		console.log(form);
 		if (!form.valid) {
 			return fail(400, { form });
 		}

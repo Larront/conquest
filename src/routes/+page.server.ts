@@ -20,11 +20,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		safeGetSession()
 	]);
 
-	if (user == null) {
-		console.error('No User found');
-	} else {
-		console.log('User:', user);
-	}
+	// User authentication handled by layout
 
 	return {
 		planets: planets ?? [],

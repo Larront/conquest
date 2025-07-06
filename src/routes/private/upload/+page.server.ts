@@ -62,7 +62,7 @@ export const actions: Actions = {
 		const { error: battleError } = await supabase.from('battles').upsert(battle);
 
 		if (battleError) {
-			console.log('Failed to create battle', battleError);
+			console.error('Failed to create battle', battleError);
 			return fail(500, {
 				errors: { general: 'Failed to create battle report' },
 				values: form.data
@@ -82,7 +82,7 @@ export const actions: Actions = {
 		});
 
 		if (profileError) {
-			console.log('Failed to update profiles', profileError);
+			console.error('Failed to update profiles', profileError);
 			return fail(500, {
 				errors: { general: 'Failed to update player statistics' },
 				values: form.data
@@ -95,7 +95,7 @@ export const actions: Actions = {
 			.eq('planet', battle.planet);
 
 		if (controlError || !control) {
-			console.log('Failed to fetch control', controlError);
+			console.error('Failed to fetch control', controlError);
 			return fail(500, {
 				errors: { general: 'Failed to fetch faction control data' },
 				values: form.data
@@ -113,7 +113,7 @@ export const actions: Actions = {
 				.select()
 				.single();
 			if (error) {
-				console.log('Failed to create winner faction control', error);
+				console.error('Failed to create winner faction control', error);
 				return fail(500, {
 					errors: { general: 'Failed to create winner faction control' },
 					values: form.data
@@ -129,7 +129,7 @@ export const actions: Actions = {
 				.select()
 				.single();
 			if (error) {
-				console.log('Failed to create loser faction control', error);
+				console.error('Failed to create loser faction control', error);
 				return fail(500, {
 					errors: { general: 'Failed to create loser faction control' },
 					values: form.data
@@ -166,7 +166,7 @@ export const actions: Actions = {
 				.update({ control: update.control })
 				.eq('id', update.id);
 			if (error) {
-				console.log('Failed to update faction control', error);
+				console.error('Failed to update faction control', error);
 				return fail(500, {
 					errors: { general: 'Failed to update faction control' },
 					values: form.data

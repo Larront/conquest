@@ -5,6 +5,7 @@
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 	import PlanetDisplay from '$lib/components/planet/PlanetDisplay.svelte';
+	import ErrorBoundary from '$lib/components/ErrorBoundary.svelte';
 
 	// Lazy load PlanetInfo component to reduce initial bundle size
 	let PlanetInfo: any = $state();
@@ -56,6 +57,8 @@
 				PlanetInfo = module.default;
 			} catch (error) {
 				console.error('Failed to load PlanetInfo component:', error);
+				// Show error state instead of component
+				PlanetInfo = null;
 			} finally {
 				isPlanetInfoLoading = false;
 			}
@@ -259,7 +262,9 @@
 						<span class="ml-2 text-yellow-300">Loading planet details...</span>
 					</div>
 				{:else if PlanetInfo && selectedPlanet}
-					<PlanetInfo planet={selectedPlanet} />
+					<ErrorBoundary>
+						<PlanetInfo planet={selectedPlanet} />
+					</ErrorBoundary>
 				{:else}
 					<div class="flex h-64 items-center justify-center text-yellow-300">
 						<span>Failed to load planet details</span>
@@ -287,7 +292,9 @@
 						<span class="ml-2 text-yellow-300">Loading planet details...</span>
 					</div>
 				{:else if PlanetInfo && selectedPlanet}
-					<PlanetInfo planet={selectedPlanet} />
+					<ErrorBoundary>
+						<PlanetInfo planet={selectedPlanet} />
+					</ErrorBoundary>
 				{:else}
 					<div class="flex h-64 items-center justify-center text-yellow-300">
 						<span>Failed to load planet details</span>

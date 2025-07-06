@@ -91,7 +91,7 @@ export const actions: Actions = {
 		const { error } = await supabase.from('profiles').update(user_meta).eq('id', user.id);
 
 		if (error) {
-			console.log('Failed to update user profile:', error);
+			console.error('Failed to update user profile:', error);
 			return fail(500, {
 				userForm
 			});

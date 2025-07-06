@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Sword, MapPin, Calendar, Skull, Shield } from '@lucide/svelte';
 	// Dynamic import for d3-scale-chromatic to reduce initial bundle size
-	let schemeTableau10: string[] = $state([]);
+	let schemeTableau10: readonly string[] = $state([]);
 
 	// Load color scheme dynamically
 	$effect(() => {
@@ -12,7 +12,7 @@
 			.catch((error) => {
 				console.error('Failed to load color scheme:', error);
 				// Fallback color scheme
-				schemeTableau10 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'];
+				schemeTableau10 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'] as const;
 			});
 	});
 	import type { Planet } from '$lib/types';

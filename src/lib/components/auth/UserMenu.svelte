@@ -20,6 +20,7 @@
 	let battles_won: number | null = $state(null);
 	let battles_lost: number | null = $state(null);
 	let battles_drawn: number | null = $state(null);
+	let errorMessage: string | null = $state(null);
 
 	onMount(() => {
 		getProfile();
@@ -45,7 +46,8 @@
 			}
 		} catch (error) {
 			if (error instanceof Error) {
-				alert(error.message);
+				console.error('Failed to load user profile:', error);
+				errorMessage = 'Failed to load profile data';
 			}
 		} finally {
 			loading = false;
@@ -75,30 +77,38 @@
 			<div class="mt-4 mr-2 w-64 rounded border border-yellow-600 bg-gray-900 shadow-2xl">
 				<!-- User Info -->
 				<div class="border-b border-gray-700 p-4">
-					<div class="flex items-center gap-3">
-						<div class="rounded-full bg-gradient-to-r from-red-600 to-purple-600 p-2">
-							<UserIcon class="text-white" size={18} />
+					{#if errorMessage}
+						<div class="rounded bg-red-900/50 border border-red-500 p-3 text-red-200 text-sm">
+							{errorMessage}
 						</div>
-						<div>
-							<p class="font-bold text-yellow-200">{username}</p>
-							<p class="text-sm text-gray-400">{faction}</p>
+					{:else}
+						<div class="flex items-center gap-3">
+							<div class="rounded-full bg-gradient-to-r from-red-600 to-purple-600 p-2">
+								<UserIcon class="text-white" size={18} />
+							</div>
+							<div>
+								<p class="font-bold text-yellow-200">{username}</p>
+								<p class="text-sm text-gray-400">{faction}</p>
+							</div>
 						</div>
-					</div>
+					{/if}
 
-					<div class="mt-3 grid grid-cols-3 gap-2 text-xs">
-						<div class="text-center">
-							<div class="font-bold text-green-400">{battles_won}</div>
-							<div class="text-gray-400">Victories</div>
+					{#if !errorMessage}
+						<div class="mt-3 grid grid-cols-3 gap-2 text-xs">
+							<div class="text-center">
+								<div class="font-bold text-green-400">{battles_won ?? '-'}</div>
+								<div class="text-gray-400">Victories</div>
+							</div>
+							<div class="text-center">
+								<div class="font-bold text-red-400">{battles_lost ?? '-'}</div>
+								<div class="text-gray-400">Defeats</div>
+							</div>
+							<div class="text-center">
+								<div class="font-bold text-yellow-400">{battles_drawn ?? '-'}</div>
+								<div class="text-gray-400">Draws</div>
+							</div>
 						</div>
-						<div class="text-center">
-							<div class="font-bold text-red-400">{battles_lost}</div>
-							<div class="text-gray-400">Defeats</div>
-						</div>
-						<div class="text-center">
-							<div class="font-bold text-yellow-400">{battles_drawn}</div>
-							<div class="text-gray-400">Draws</div>
-						</div>
-					</div>
+					{/if}
 				</div>
 
 				<!-- Menu Items -->
