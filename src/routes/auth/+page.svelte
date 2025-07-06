@@ -1,18 +1,13 @@
 <script lang="ts">
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte';
-	import { X, User, Mail, Lock, Shield, LogIn, LoaderCircle } from '@lucide/svelte';
+	import { X, User, Mail, Lock, Shield, LoaderCircle } from '@lucide/svelte';
+	import SuperDebug, { superForm } from 'sveltekit-superforms';
 
 	let { data } = $props();
 	let { factions } = $derived(data);
 	let mode: 'signin' | 'signup' = $state('signin');
 
-	// Form data
-	let email = $state('');
-	let password = $state('');
-	let username = $state('');
-	let faction = $state('Astra Militarum');
-
-	let isLoading = $state(false);
+	const { form, errors, constraints, message, enhance, delayed } = superForm(data.form);
 
 	function toggleMode() {
 		mode = mode === 'signin' ? 'signup' : 'signin';
@@ -41,32 +36,36 @@
 			<X size={20} />
 		</a>
 	</div>
+	{#if $message}
+		<div class="mb-4 rounded border border-red-500 bg-red-900/20 p-3 text-sm text-red-300">
+			{$message}
+		</div>
+	{/if}
 	<form
 		class="space-y-4 p-6"
 		method="POST"
 		action={mode === 'signin' ? '?/login' : '?/signup'}
-		onsubmit={() => {
-			isLoading = true;
-		}}
+		use:enhance
 	>
 		{#if mode === 'signup'}
-			<div>
-				<label for="username" class="mb-2 block text-sm font-bold text-yellow-300">
-					SERVITOR DESIGNATION
-				</label>
-				<div class="relative">
-					<User class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" size={18} />
-					<input
-						id="username"
-						name="username"
-						type="text"
-						bind:value={username}
-						placeholder="Enter username..."
-						class="w-full rounded border border-gray-600 bg-gray-800 py-2 pr-4 pl-10 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
-						required
-					/>
-				</div>
+			<label for="username" class="mb-2 block text-sm font-bold text-yellow-300">
+				SERVITOR DESIGNATION
+			</label>
+			<div class="relative">
+				<User class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400" size={18} />
+				<input
+					id="username"
+					name="username"
+					type="text"
+					aria-invalid={$errors.username ? 'true' : undefined}
+					bind:value={$form.username}
+					placeholder="Enter username..."
+					class="w-full rounded border border-gray-600 bg-gray-800 py-2 pr-4 pl-10 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
+				/>
 			</div>
+			{#if $errors.username}
+				<p class="mt-1 text-sm text-red-400">{$errors.username}</p>
+			{/if}
 		{/if}
 
 		<div>
@@ -78,13 +77,15 @@
 				<input
 					id="email"
 					name="email"
-					type="email"
-					bind:value={email}
+					aria-invalid={$errors.email ? 'true' : undefined}
+					bind:value={$form.email}
 					placeholder="Enter email..."
 					class="w-full rounded border border-gray-600 bg-gray-800 py-2 pr-4 pl-10 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
-					required
 				/>
 			</div>
+			{#if $errors.email}
+				<p class="mt-1 text-sm text-red-400">{$errors.email}</p>
+			{/if}
 		</div>
 
 		<div>
@@ -97,12 +98,15 @@
 					id="password"
 					name="password"
 					type="password"
-					bind:value={password}
+					aria-invalid={$errors.password ? 'true' : undefined}
+					bind:value={$form.password}
 					placeholder="Enter password..."
 					class="w-full rounded border border-gray-600 bg-gray-800 py-2 pr-4 pl-10 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
-					required
 				/>
 			</div>
+			{#if $errors.password}
+				<p class="mt-1 text-sm text-red-400">{$errors.password}</p>
+			{/if}
 		</div>
 
 		{#if mode === 'signup'}
@@ -113,7 +117,8 @@
 				<select
 					id="faction"
 					name="faction"
-					bind:value={faction}
+					aria-invalid={$errors.faction ? 'true' : undefined}
+					bind:value={$form.faction}
 					class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
 				>
 					{#each factions as factionOption}
@@ -121,14 +126,17 @@
 					{/each}
 				</select>
 			</div>
+			{#if $errors.faction}
+				<p class="mt-1 text-sm text-red-400">{$errors.faction}</p>
+			{/if}
 		{/if}
 
 		<button
 			type="submit"
-			disabled={isLoading}
+			disabled={$delayed}
 			class="flex w-full rounded bg-gradient-to-r from-red-700 to-red-600 px-4 py-2 font-bold text-yellow-100 transition-colors hover:from-red-600 hover:to-red-500 disabled:cursor-not-allowed disabled:opacity-50"
 		>
-			{#if isLoading}
+			{#if $delayed}
 				<div class="mx-auto flex gap-3">
 					<LoaderCircle class="animate-spin" /> PROCESSING…
 				</div>

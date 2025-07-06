@@ -44,7 +44,6 @@ export interface Faction {
 
 export interface User {
 	id: string;
-	updated_at: string;
 	username: string;
 	faction: string;
 	battles_won: number;

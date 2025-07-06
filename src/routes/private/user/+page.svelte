@@ -3,29 +3,35 @@
 	import type { Faction, User } from '$lib/types.js';
 	import { X, Shield, UserIcon, Sword, Trophy, Calendar, Save } from '@lucide/svelte';
 	import { onMount } from 'svelte';
+	import { superForm } from 'sveltekit-superforms';
 
 	let { data } = $props();
 	let { user, factions }: { user: User; factions: Faction[] | null } = $derived(data);
+	const {
+		form: passwordForm,
+		errors: passwordErrors,
+		message: passwordMessage,
+		enhance: passwordEnhance,
+		delayed: passwordDelayed
+	} = superForm(data.passwordForm);
+	const {
+		form: userForm,
+		errors: userErrors,
+		message: userMessage,
+		enhance: userEnhance,
+		delayed: userDelayed
+	} = superForm(data.userForm);
 
 	let activeTab = $state<'profile' | 'stats' | 'security'>('profile');
-	let isLoading = $state(false);
-	let message = $state('');
-	let messageType = $state<'success' | 'error'>('success');
-
 	// Form data
 	let username = $state('');
 	let id = $state('');
 	let faction = $state('');
-	let currentPassword = $state('');
-	let newPassword = $state('');
-	let confirmPassword = $state('');
 	let battles_won = $state(0);
 	let battles_lost = $state(0);
 	let battles_drawn = $state(0);
 	let total_points = $state(0);
 	let created_at = $state('');
-
-	let matching_passwords = $derived(confirmPassword == newPassword);
 
 	onMount(() => {
 		getProfile();
@@ -33,7 +39,6 @@
 
 	const getProfile = async () => {
 		try {
-			isLoading = true;
 			const { data, error, status } = await supabase
 				.from('profiles')
 				.select(
@@ -58,8 +63,6 @@
 			if (error instanceof Error) {
 				alert(error.message);
 			}
-		} finally {
-			isLoading = false;
 		}
 	};
 
@@ -105,7 +108,6 @@
 		<button
 			onclick={() => {
 				activeTab = 'profile';
-				message = '';
 			}}
 			class="flex items-center gap-2 px-6 py-3 text-sm font-bold transition-colors {activeTab ===
 			'profile'
@@ -118,7 +120,6 @@
 		<button
 			onclick={() => {
 				activeTab = 'stats';
-				message = '';
 			}}
 			class="flex items-center gap-2 px-6 py-3 text-sm font-bold transition-colors {activeTab ===
 			'stats'
@@ -131,7 +132,6 @@
 		<button
 			onclick={() => {
 				activeTab = 'security';
-				message = '';
 			}}
 			class="flex items-center gap-2 px-6 py-3 text-sm font-bold transition-colors {activeTab ===
 			'security'
@@ -145,23 +145,13 @@
 
 	<!-- Content -->
 	<div class="max-h-[60vh] overflow-y-auto p-6">
-		{#if message}
-			<div
-				class="mb-4 rounded border {messageType === 'success'
-					? 'border-green-500 bg-green-900/20 text-green-300'
-					: 'border-red-500 bg-red-900/20 text-red-300'} p-3 text-sm"
-			>
-				{message}
-			</div>
-		{/if}
-
 		{#if activeTab === 'profile'}
-			<form
-				class="space-y-6"
-				method="POST"
-				action={'?/updateuser'}
-				onsubmit={() => (isLoading = true)}
-			>
+			{#if $userMessage}
+				<div class="mb-4 rounded border border-red-500 bg-red-900/20 p-3 text-sm text-red-300">
+					{$userMessage}
+				</div>
+			{/if}
+			<form class="space-y-6" method="POST" action={'?/updateuser'} use:userEnhance>
 				<div class="grid gap-6 md:grid-cols-2">
 					<div>
 						<label for="edit-username" class="mb-2 block text-sm font-bold text-yellow-300">
@@ -171,10 +161,13 @@
 							id="edit-username"
 							name="username"
 							type="text"
-							bind:value={username}
+							aria-invalid={$userErrors.username ? 'true' : undefined}
+							bind:value={$userForm.username}
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
-							required
 						/>
+						{#if $userErrors.username}
+							<p class="mt-1 text-sm text-red-400">{$userErrors.username}</p>
+						{/if}
 					</div>
 
 					<div>
@@ -184,23 +177,27 @@
 						<select
 							id="edit-faction"
 							name="faction"
-							bind:value={faction}
+							aria-invalid={$userErrors.faction ? 'true' : undefined}
+							bind:value={$userForm.faction}
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
 						>
 							{#each factions! as factionOption}
 								<option value={factionOption.name}>{factionOption.name}</option>
 							{/each}
 						</select>
+						{#if $userErrors.faction}
+							<p class="mt-1 text-sm text-red-400">{$userErrors.faction}</p>
+						{/if}
 					</div>
 				</div>
 
 				<button
 					type="submit"
-					disabled={isLoading}
+					disabled={$userDelayed}
 					class="flex items-center gap-2 rounded bg-gradient-to-r from-yellow-700 to-yellow-600 px-4 py-2 font-bold text-black transition-colors hover:from-yellow-600 hover:to-yellow-500 disabled:opacity-50"
 				>
 					<Save size={18} />
-					{isLoading ? 'UPDATING...' : 'UPDATE PROFILE'}
+					{$userDelayed ? 'UPDATING...' : 'UPDATE PROFILE'}
 				</button>
 			</form>
 		{:else if activeTab === 'stats'}
@@ -286,18 +283,18 @@
 				</div>
 			</div>
 		{:else if activeTab === 'security'}
-			<form
-				class="space-y-6"
-				method="POST"
-				action={'?/updatepassword'}
-				onsubmit={() => (isLoading = true)}
-			>
+			<form class="space-y-6" method="POST" action={'?/updatepassword'} use:passwordEnhance>
 				<div class="rounded border border-red-600 bg-red-900/10 p-4">
 					<h3 class="mb-2 text-lg font-bold text-red-300">Change Authorization Cipher</h3>
 					<p class="text-sm text-gray-400">
 						Update your access credentials. Ensure your new cipher is secure and memorable.
 					</p>
 				</div>
+				{#if $passwordMessage}
+					<div class="mb-4 rounded border border-red-500 bg-red-900/20 p-3 text-sm text-red-300">
+						{$passwordMessage}
+					</div>
+				{/if}
 
 				<div class="space-y-4">
 					<div>
@@ -308,10 +305,10 @@
 							id="current-password"
 							name="current-password"
 							type="password"
-							bind:value={currentPassword}
+							aria-invalid={$passwordErrors.currentPassword ? 'true' : undefined}
+							bind:value={$passwordForm.currentPassword}
 							placeholder="Enter current password..."
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
-							required
 						/>
 					</div>
 
@@ -323,10 +320,10 @@
 							id="new-password"
 							name="new-password"
 							type="password"
-							bind:value={newPassword}
+							aria-invalid={$passwordErrors.newPassword ? 'true' : undefined}
+							bind:value={$passwordForm.newPassword}
 							placeholder="Enter new password..."
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
-							required
 						/>
 					</div>
 
@@ -338,26 +335,21 @@
 							id="confirm-password"
 							name="confirm-password"
 							type="password"
-							bind:value={confirmPassword}
+							aria-invalid={$passwordErrors.confirmPassword ? 'true' : undefined}
+							bind:value={$passwordForm.confirmPassword}
 							placeholder="Confirm new password..."
 							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
-							required
 						/>
 					</div>
-					{#if !matching_passwords}
-						<div class="rounded border border-red-600 bg-red-900/10 p-4">
-							<p class="text-sm text-gray-400">Error: Ciphers do not match.</p>
-						</div>
-					{/if}
 				</div>
 
 				<button
 					type="submit"
-					disabled={isLoading || !matching_passwords}
+					disabled={$passwordDelayed}
 					class="flex items-center gap-2 rounded bg-gradient-to-r from-red-700 to-red-600 px-4 py-2 font-bold text-yellow-100 transition-colors hover:from-red-600 hover:to-red-500 disabled:opacity-50"
 				>
 					<Shield size={18} />
-					{isLoading ? 'UPDATING...' : 'UPDATE CIPHER'}
+					{$passwordDelayed ? 'UPDATING...' : 'UPDATE CIPHER'}
 				</button>
 			</form>
 		{/if}

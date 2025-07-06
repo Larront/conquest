@@ -1,54 +1,93 @@
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { userUpdateSchema, passwordUpdateSchema, sanitizeText } from '$lib/validation';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
 
 export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession } }) => {
 	const { user } = await safeGetSession();
+	const passwordForm = await superValidate(zod4(passwordUpdateSchema));
+	const userForm = await superValidate(zod4(userUpdateSchema));
 	const { data: factions } = await supabase.from('factions').select();
 
-	return { user, factions };
+	return { user, factions, passwordForm, userForm };
 };
 
 export const actions: Actions = {
 	updatepassword: async ({ request, locals: { supabase, safeGetSession } }) => {
-		const formData = await request.formData();
+		const passwordForm = await superValidate(request, zod4(passwordUpdateSchema));
 		const { user } = await safeGetSession();
-		const current_password = formData.get('current-password') as string;
-		const new_password = formData.get('new-password') as string;
 
+		if (!passwordForm.valid) {
+			return fail(400, {
+				passwordForm
+			});
+		}
+
+		// Verify current password by attempting to sign in
 		const { error: error_signin } = await supabase.auth.signInWithPassword({
 			email: user.email,
-			password: current_password
+			password: passwordForm.data.currentPassword
 		});
 
 		if (error_signin) {
-			console.error(error_signin);
-			redirect(303, '/auth/error');
+			console.error('Current password verification failed:', error_signin);
+			return fail(400, { passwordForm });
 		}
-		const { error: error_update } = await supabase.auth.updateUser({ password: new_password });
+
+		// Update password
+		const { error: error_update } = await supabase.auth.updateUser({
+			password: passwordForm.data.newPassword
+		});
 
 		if (error_update) {
-			console.error(error_signin);
-			redirect(303, '/auth/error');
+			console.error('Password update failed:', error_update);
+			return fail(400, {
+				passwordForm
+			});
 		} else {
 			redirect(303, '/');
 		}
 	},
 	updateuser: async ({ request, locals: { supabase, safeGetSession } }) => {
-		const formData = await request.formData();
+		const userForm = await superValidate(request, zod4(userUpdateSchema));
 		const { user } = await safeGetSession();
 
+		if (!userForm.valid) {
+			return fail(400, {
+				userForm
+			});
+		}
+
+		// Sanitize text fields
+		const sanitizedUsername = sanitizeText(userForm.data.username);
+
+		// Check if username is already taken (excluding current user)
+		const { data: existingUser } = await supabase
+			.from('profiles')
+			.select('id')
+			.eq('username', sanitizedUsername)
+			.neq('id', user.id)
+			.single();
+
+		if (existingUser) {
+			return fail(400, {
+				userForm
+			});
+		}
+
 		const user_meta = {
-			username: formData.get('username') as string,
-			faction: formData.get('faction') as string
+			username: sanitizedUsername,
+			faction: userForm.data.faction
 		};
 
-		console.log(user_meta);
-		console.log(user.id);
 		const { error } = await supabase.from('profiles').update(user_meta).eq('id', user.id);
 
 		if (error) {
-			console.log('Failed to update user', error);
-			return fail(500, { error: 'Failed to update user' });
+			console.log('Failed to update user profile:', error);
+			return fail(500, {
+				userForm
+			});
 		}
 
 		redirect(303, '/');

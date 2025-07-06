@@ -1,27 +1,44 @@
 import { fail, redirect, type Actions } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
+import { superValidate } from 'sveltekit-superforms';
+import { zod4 } from 'sveltekit-superforms/adapters';
+import { battleUploadSchema, sanitizeText } from '$lib/validation';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	const { data: planets } = await supabase.from('planets').select();
 	const { data: profiles } = await supabase.from('profiles').select();
 
-	return { planets: planets ?? [], profiles: profiles ?? [] };
+	const form = await superValidate(
+		{ selectedPlanet: 1, battleDate: new Date().toISOString(), points: 500 },
+		zod4(battleUploadSchema)
+	);
+
+	return { planets: planets ?? [], profiles: profiles ?? [], form };
 };
 
 export const actions: Actions = {
 	update: async ({ request, locals: { supabase } }) => {
-		const formData = await request.formData();
+		const form = await superValidate(request, zod4(battleUploadSchema));
+		if (!form.valid) {
+			return fail(400, {
+				form
+			});
+		}
 
-		const selectedPlanet = formData.get('selectedPlanet') as string;
-		const battleType = formData.get('battleType') as string;
-		const points = formData.get('points') as string;
-		const attacker = formData.get('attacker') as string;
-		const attackerPoints = formData.get('attackerPoints') as string;
-		const defender = formData.get('defender') as string;
-		const defenderPoints = formData.get('defenderPoints') as string;
-		const result = formData.get('result') as string;
-		const description = formData.get('description') as string;
-		const battleDate = formData.get('battleDate') as string;
+		// Sanitize text fields
+		const sanitizedDescription = form.data.description ? sanitizeText(form.data.description) : '';
+
+		// Convert to proper types for database
+		const selectedPlanet = form.data.selectedPlanet.toString();
+		const battleType = form.data.battleType;
+		const points = form.data.points.toString();
+		const attacker = form.data.attacker;
+		const attackerPoints = form.data.attackerPoints.toString();
+		const defender = form.data.defender;
+		const defenderPoints = form.data.defenderPoints.toString();
+		const result = form.data.result;
+		const description = sanitizedDescription;
+		const battleDate = form.data.battleDate;
 
 		const battle = {
 			planet: Number(selectedPlanet),
@@ -39,17 +56,10 @@ export const actions: Actions = {
 		const { error: battleError } = await supabase.from('battles').upsert(battle);
 
 		if (battleError) {
+			console.log('Failed to create battle', battleError);
 			return fail(500, {
-				selectedPlanet,
-				battleType,
-				points,
-				attacker,
-				attackerPoints,
-				defender,
-				defenderPoints,
-				result,
-				description,
-				battleDate
+				errors: { general: 'Failed to create battle report' },
+				values: form.data
 			});
 		}
 
@@ -67,7 +77,10 @@ export const actions: Actions = {
 
 		if (profileError) {
 			console.log('Failed to update profiles', profileError);
-			return fail(500, { error: 'Failed to update profiles' });
+			return fail(500, {
+				errors: { general: 'Failed to update player statistics' },
+				values: form.data
+			});
 		}
 
 		const { data: control, error: controlError } = await supabase
@@ -77,7 +90,10 @@ export const actions: Actions = {
 
 		if (controlError || !control) {
 			console.log('Failed to fetch control', controlError);
-			return fail(500, { error: 'Failed to fetch faction control' });
+			return fail(500, {
+				errors: { general: 'Failed to fetch faction control data' },
+				values: form.data
+			});
 		}
 
 		let winnerControl = control.find((c) => c.profile === winner);
@@ -92,7 +108,10 @@ export const actions: Actions = {
 				.single();
 			if (error) {
 				console.log('Failed to create winner faction control', error);
-				return fail(500, { error: 'Failed to create winner faction control' });
+				return fail(500, {
+					errors: { general: 'Failed to create winner faction control' },
+					values: form.data
+				});
 			}
 			winnerControl = data;
 		}
@@ -105,7 +124,10 @@ export const actions: Actions = {
 				.single();
 			if (error) {
 				console.log('Failed to create loser faction control', error);
-				return fail(500, { error: 'Failed to create loser faction control' });
+				return fail(500, {
+					errors: { general: 'Failed to create loser faction control' },
+					values: form.data
+				});
 			}
 			loserControl = data;
 		}
@@ -139,7 +161,10 @@ export const actions: Actions = {
 				.eq('id', update.id);
 			if (error) {
 				console.log('Failed to update faction control', error);
-				return fail(500, { error: 'Failed to update faction control' });
+				return fail(500, {
+					errors: { general: 'Failed to update faction control' },
+					values: form.data
+				});
 			}
 		}
 
