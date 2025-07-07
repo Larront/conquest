@@ -15,8 +15,9 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	]);
 
 	const form = await superValidate(
-		{ selectedPlanet: 1, battleDate: new Date().toISOString(), points: 500 },
-		zod4(battleUploadSchema)
+		{ selectedPlanet: 1, battleDate: new Date().toISOString().split('T')[0], points: 500 },
+		zod4(battleUploadSchema),
+		{ errors: false }
 	);
 
 	return { planets: planets ?? [], profiles: profiles ?? [], form };

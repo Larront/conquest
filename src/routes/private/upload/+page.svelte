@@ -5,7 +5,9 @@
 	let { data } = $props();
 	let { planets, profiles } = $derived(data);
 
-	const { form, errors, message, enhance, delayed } = superForm(data.form);
+	const { form, errors, message, enhance, delayed, submitting } = superForm(data.form);
+	let hasSubmitted = $state(false);
+	$inspect(hasSubmitted);
 
 	const battleTypes = ['Combat Patrol', 'Incursion', 'Strike Force', 'Onslaught'];
 </script>
@@ -35,7 +37,13 @@
 			</div>
 		{/if}
 
-		<form method="POST" action={'?/update'} class="space-y-6" use:enhance>
+		<form
+			method="POST"
+			action={'?/update'}
+			class="space-y-6"
+			use:enhance
+			onsubmit={() => (hasSubmitted = true)}
+		>
 			<!-- Planet Selection -->
 			<div class="grid gap-4 md:grid-cols-2">
 				<div>
@@ -54,7 +62,7 @@
 							<option value={planet.id}>{planet.name}</option>
 						{/each}
 					</select>
-					{#if $errors.selectedPlanet}
+					{#if $errors.selectedPlanet && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.selectedPlanet}</p>
 					{/if}
 				</div>
@@ -72,7 +80,7 @@
 						bind:value={$form.battleDate}
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 focus:border-red-500 focus:outline-none"
 					/>
-					{#if $errors.battleDate}
+					{#if $errors.battleDate && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.battleDate}</p>
 					{/if}
 				</div>
@@ -95,7 +103,7 @@
 							<option value={type}>{type}</option>
 						{/each}
 					</select>
-					{#if $errors.battleType}
+					{#if $errors.battleType && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.battleType}</p>
 					{/if}
 				</div>
@@ -115,7 +123,7 @@
 						step="500"
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 focus:border-red-500 focus:outline-none"
 					/>
-					{#if $errors.points}
+					{#if $errors.points && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.points}</p>
 					{/if}
 				</div>
@@ -140,7 +148,7 @@
 							<option value={profile.id}>{profile.username} - {profile.faction}</option>
 						{/each}
 					</select>
-					{#if $errors.attacker}
+					{#if $errors.attacker && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.attacker}</p>
 					{/if}
 				</div>
@@ -162,7 +170,7 @@
 							<option value={profile.id}>{profile.username} - {profile.faction}</option>
 						{/each}
 					</select>
-					{#if $errors.defender}
+					{#if $errors.defender && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.defender}</p>
 					{/if}
 				</div>
@@ -184,7 +192,7 @@
 						max="100"
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 focus:border-red-500 focus:outline-none"
 					/>
-					{#if $errors.attackerPoints}
+					{#if $errors.attackerPoints && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.attackerPoints}</p>
 					{/if}
 				</div>
@@ -204,7 +212,7 @@
 						max="100"
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 focus:border-red-500 focus:outline-none"
 					/>
-					{#if $errors.defenderPoints}
+					{#if $errors.defenderPoints && hasSubmitted}
 						<p class="mt-1 text-sm text-red-400">{$errors.defenderPoints}</p>
 					{/if}
 				</div>
@@ -268,7 +276,7 @@
 						</div>
 					</label>
 				</div>
-				{#if $errors.result}
+				{#if $errors.result && hasSubmitted}
 					<p class="mt-2 text-sm text-red-400">{$errors.result}</p>
 				{/if}
 			</div>
@@ -287,7 +295,7 @@
 					rows="4"
 					class="w-full resize-none rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 placeholder-gray-400 focus:border-red-500 focus:outline-none"
 				></textarea>
-				{#if $errors.description}
+				{#if $errors.description && hasSubmitted}
 					<p class="mt-1 text-sm text-red-400">{$errors.description}</p>
 				{/if}
 			</div>
