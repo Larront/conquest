@@ -10,6 +10,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		{ data: profiles },
 		{ data: control },
 		{ data: factions },
+		{ data: userFactions },
 		{ user }
 	] = await Promise.all([
 		supabase.from('planets').select(), // All fields needed for planet display
@@ -17,6 +18,10 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		supabase.from('profiles').select('id, faction, username'), // Only fields used in frontend
 		supabase.from('control').select(), // All fields needed for faction control
 		supabase.from('factions').select('name, allegiance'), // Only fields used in frontend
+		supabase
+			.from('user_factions')
+			.select('id, user_id, faction_name, faction_display_name, battles_won, battles_lost, battles_drawn, total_points, profiles!inner(username)')
+			.order('faction_display_name'),
 		safeGetSession()
 	]);
 
@@ -28,6 +33,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		profiles: profiles ?? [],
 		control: control ?? [],
 		factions: factions ?? [],
+		userFactions: userFactions ?? [],
 		user
 	};
 };

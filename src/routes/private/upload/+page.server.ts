@@ -8,10 +8,13 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	// Run database queries in parallel and select only needed fields
 	const [
 		{ data: planets },
-		{ data: profiles }
+		{ data: userFactions }
 	] = await Promise.all([
 		supabase.from('planets').select('id, name'), // Only fields needed for dropdown
-		supabase.from('profiles').select('id, username, faction') // Only fields needed for selection
+		supabase
+			.from('user_factions')
+			.select('id, user_id, faction_name, faction_display_name, profiles!inner(username)')
+			.order('faction_display_name')
 	]);
 
 	const form = await superValidate(
@@ -20,7 +23,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 		{ errors: false }
 	);
 
-	return { planets: planets ?? [], profiles: profiles ?? [], form };
+	return { planets: planets ?? [], userFactions: userFactions ?? [], form };
 };
 
 export const actions: Actions = {
@@ -39,25 +42,47 @@ export const actions: Actions = {
 		const selectedPlanet = form.data.selectedPlanet.toString();
 		const battleType = form.data.battleType;
 		const points = form.data.points.toString();
-		const attacker = form.data.attacker;
+		const attackerUserFactionId = form.data.attacker;
 		const attackerPoints = form.data.attackerPoints.toString();
-		const defender = form.data.defender;
+		const defenderUserFactionId = form.data.defender;
 		const defenderPoints = form.data.defenderPoints.toString();
 		const result = form.data.result;
 		const description = sanitizedDescription;
 		const battleDate = form.data.battleDate;
 
+		// Get user IDs from user_faction IDs for backward compatibility
+		const { data: attackerUserFaction } = await supabase
+			.from('user_factions')
+			.select('user_id')
+			.eq('id', attackerUserFactionId)
+			.single();
+
+		const { data: defenderUserFaction } = await supabase
+			.from('user_factions')
+			.select('user_id')
+			.eq('id', defenderUserFactionId)
+			.single();
+
+		if (!attackerUserFaction || !defenderUserFaction) {
+			return fail(400, {
+				errors: { general: 'Invalid faction selection' },
+				values: form.data
+			});
+		}
+
 		const battle = {
 			planet: Number(selectedPlanet),
 			battle_type: battleType,
 			points,
-			attacker,
+			attacker: attackerUserFaction.user_id,
 			attacker_points: attackerPoints,
-			defender,
+			defender: defenderUserFaction.user_id,
 			defender_points: Number(defenderPoints),
 			result,
 			description,
-			battle_date: new Date(battleDate)
+			battle_date: new Date(battleDate),
+			attacker_user_faction_id: attackerUserFactionId,
+			defender_user_faction_id: defenderUserFactionId
 		};
 
 		const { error: battleError } = await supabase.from('battles').upsert(battle);
@@ -71,9 +96,43 @@ export const actions: Actions = {
 		}
 
 		const planet = battle.planet;
+		const winnerUserFactionId = battle.result === 'Attacker Victory' ? attackerUserFactionId : defenderUserFactionId;
+		const loserUserFactionId = battle.result === 'Attacker Victory' ? defenderUserFactionId : attackerUserFactionId;
 		const winner = battle.result === 'Attacker Victory' ? battle.attacker : battle.defender;
 		const loser = battle.result === 'Attacker Victory' ? battle.defender : battle.attacker;
 
+		// Update user faction stats using direct SQL execution
+		try {
+			if (result === 'Draw') {
+				// Both get a draw
+				await supabase.rpc('execute_sql', {
+					query: `UPDATE user_factions SET battles_drawn = battles_drawn + 1 WHERE id IN (${winnerUserFactionId}, ${loserUserFactionId})`
+				});
+			} else {
+				// Winner gets win, loser gets loss
+				await supabase.rpc('execute_sql', {
+					query: `UPDATE user_factions SET battles_won = battles_won + 1 WHERE id = ${winnerUserFactionId}`
+				});
+				await supabase.rpc('execute_sql', {
+					query: `UPDATE user_factions SET battles_lost = battles_lost + 1 WHERE id = ${loserUserFactionId}`
+				});
+			}
+
+			// Update total points for both user factions
+			const winnerPoints = battle.result === 'Attacker Victory' ? Number(attackerPoints) : Number(defenderPoints);
+			const loserPoints = battle.result === 'Attacker Victory' ? Number(defenderPoints) : Number(attackerPoints);
+
+			await supabase.rpc('execute_sql', {
+				query: `UPDATE user_factions SET total_points = total_points + ${winnerPoints} WHERE id = ${winnerUserFactionId}`
+			});
+			await supabase.rpc('execute_sql', {
+				query: `UPDATE user_factions SET total_points = total_points + ${loserPoints} WHERE id = ${loserUserFactionId}`
+			});
+		} catch (error) {
+			console.error('Failed to update user faction stats:', error);
+		}
+
+		// Update legacy profile stats for backward compatibility
 		const { error: profileError } = await supabase.rpc('update_battle_stats', {
 			winner_id: winner,
 			loser_id: loser,
@@ -103,14 +162,14 @@ export const actions: Actions = {
 			});
 		}
 
-		let winnerControl = control.find((c) => c.profile === winner);
-		let loserControl = control.find((c) => c.profile === loser);
+		let winnerControl = control.find((c) => c.user_faction_id === winnerUserFactionId);
+		let loserControl = control.find((c) => c.user_faction_id === loserUserFactionId);
 		const contestedControl = control.find((c) => c.profile === 'Contested');
 
 		if (!winnerControl) {
 			const { data, error } = await supabase
 				.from('control')
-				.insert({ planet, profile: winner, control: 0 })
+				.insert({ planet, user_faction_id: winnerUserFactionId, control: 0 })
 				.select()
 				.single();
 			if (error) {
@@ -126,7 +185,7 @@ export const actions: Actions = {
 		if (!loserControl) {
 			const { data, error } = await supabase
 				.from('control')
-				.insert({ planet, profile: loser, control: 0 })
+				.insert({ planet, user_faction_id: loserUserFactionId, control: 0 })
 				.select()
 				.single();
 			if (error) {

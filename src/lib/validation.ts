@@ -28,8 +28,8 @@ export const battleUploadSchema = z
 			.number()
 			.min(500, 'Points must be at least 500')
 			.max(2000, 'Points cannot exceed 2000'),
-		attacker: z.uuid('Invalid attacker selection'),
-		defender: z.uuid('Invalid defender selection'),
+		attacker: z.coerce.number().min(1, 'Invalid attacker selection'),
+		defender: z.coerce.number().min(1, 'Invalid defender selection'),
 		attackerPoints: z.coerce
 			.number()
 			.min(0, 'Attacker points cannot be negative')

@@ -22,7 +22,7 @@
 		delayed: userDelayed
 	} = superForm(data.userForm);
 
-	let activeTab = $state<'profile' | 'stats' | 'security'>('profile');
+	let activeTab = $state<'profile' | 'stats' | 'factions' | 'security'>('profile');
 	// Form data
 	let username = $state('');
 	let id = $state('');
@@ -144,6 +144,18 @@
 		>
 			<Trophy size={16} />
 			Statistics
+		</button>
+		<button
+			onclick={() => {
+				activeTab = 'factions';
+			}}
+			class="flex items-center gap-2 px-6 py-3 text-sm font-bold transition-colors {activeTab ===
+			'factions'
+				? 'border-b-2 border-yellow-500 text-yellow-300'
+				: 'text-gray-400 hover:text-yellow-200'}"
+		>
+			<Sword size={16} />
+			Factions
 		</button>
 		<button
 			onclick={() => {
@@ -296,6 +308,38 @@
 							<span class="font-bold text-green-400">ACTIVE</span>
 						</div>
 					</div>
+				</div>
+			</div>
+		{:else if activeTab === 'factions'}
+			<div class="space-y-6">
+				<!-- Faction Management Header -->
+				<div class="rounded border border-red-600 bg-red-900/10 p-4">
+					<h3 class="mb-2 text-lg font-bold text-red-300">Faction Management</h3>
+					<p class="text-sm text-gray-400">
+						Manage your faction allegiances. You can control multiple factions and track separate battle statistics for each.
+					</p>
+				</div>
+
+				<!-- Quick Link to Full Faction Management -->
+				<div class="text-center">
+					<a
+						href="/private/user/factions"
+						class="inline-flex items-center gap-2 rounded bg-gradient-to-r from-red-700 to-red-600 px-6 py-3 font-bold text-yellow-100 transition-colors hover:from-red-600 hover:to-red-500"
+					>
+						<Sword size={18} />
+						Manage Factions
+					</a>
+				</div>
+
+				<!-- Quick Faction Overview -->
+				<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
+					<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
+						<Trophy size={20} />
+						FACTION OVERVIEW
+					</h3>
+					<p class="mb-4 text-sm text-gray-400">
+						Visit the full faction management page to add, edit, or remove factions.
+					</p>
 				</div>
 			</div>
 		{:else if activeTab === 'security'}
