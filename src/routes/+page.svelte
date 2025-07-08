@@ -30,7 +30,7 @@
 						const userFaction = userFactions.find((uf) => uf.id == control.user_faction_id);
 						return {
 							...control,
-							profile: userFaction 
+							profile: userFaction
 								? `${userFaction.profiles.username} (${userFaction.faction_display_name})`
 								: 'Unknown'
 						};
@@ -38,7 +38,8 @@
 						// Fallback for legacy control entries
 						return {
 							...control,
-							profile: profiles.find((profile) => profile.id == control.profile)?.faction || 'Contested'
+							profile:
+								profiles.find((profile) => profile.id == control.profile)?.faction || 'Contested'
 						};
 					}
 				}),
@@ -48,27 +49,41 @@
 					// Try to get user faction names for battles with user_faction_id
 					let attackerName = '';
 					let defenderName = '';
-					
+
 					if (battle.attacker_user_faction_id) {
-						const attackerFaction = userFactions.find((uf) => uf.id == battle.attacker_user_faction_id);
-						attackerName = attackerFaction 
+						const attackerFaction = userFactions.find(
+							(uf) => uf.id == battle.attacker_user_faction_id
+						);
+						attackerName = attackerFaction
 							? `${attackerFaction.profiles.username} (${attackerFaction.faction_display_name})`
-							: profiles.find((profile) => profile.id == battle.attacker)?.faction + ' - ' + profiles.find((profile) => profile.id == battle.attacker)?.username;
+							: profiles.find((profile) => profile.id == battle.attacker)?.faction +
+								' - ' +
+								profiles.find((profile) => profile.id == battle.attacker)?.username;
 					} else {
 						// Fallback for legacy battles
-						attackerName = profiles.find((profile) => profile.id == battle.attacker)?.faction + ' - ' + profiles.find((profile) => profile.id == battle.attacker)?.username;
+						attackerName =
+							profiles.find((profile) => profile.id == battle.attacker)?.faction +
+							' - ' +
+							profiles.find((profile) => profile.id == battle.attacker)?.username;
 					}
-					
+
 					if (battle.defender_user_faction_id) {
-						const defenderFaction = userFactions.find((uf) => uf.id == battle.defender_user_faction_id);
-						defenderName = defenderFaction 
+						const defenderFaction = userFactions.find(
+							(uf) => uf.id == battle.defender_user_faction_id
+						);
+						defenderName = defenderFaction
 							? `${defenderFaction.profiles.username} (${defenderFaction.faction_display_name})`
-							: profiles.find((profile) => profile.id == battle.defender)?.faction + ' - ' + profiles.find((profile) => profile.id == battle.defender)?.username;
+							: profiles.find((profile) => profile.id == battle.defender)?.faction +
+								' - ' +
+								profiles.find((profile) => profile.id == battle.defender)?.username;
 					} else {
 						// Fallback for legacy battles
-						defenderName = profiles.find((profile) => profile.id == battle.defender)?.faction + ' - ' + profiles.find((profile) => profile.id == battle.defender)?.username;
+						defenderName =
+							profiles.find((profile) => profile.id == battle.defender)?.faction +
+							' - ' +
+							profiles.find((profile) => profile.id == battle.defender)?.username;
 					}
-					
+
 					return {
 						...battle,
 						attacker: attackerName,
@@ -292,7 +307,9 @@
 				</button>
 				{#if isPlanetInfoLoading}
 					<div class="flex h-64 items-center justify-center">
-						<div class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"></div>
+						<div
+							class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"
+						></div>
 						<span class="ml-2 text-yellow-300">Loading planet details...</span>
 					</div>
 				{:else if PlanetInfo && selectedPlanet}
@@ -322,7 +339,9 @@
 				</button>
 				{#if isPlanetInfoLoading}
 					<div class="flex h-64 items-center justify-center">
-						<div class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"></div>
+						<div
+							class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"
+						></div>
 						<span class="ml-2 text-yellow-300">Loading planet details...</span>
 					</div>
 				{:else if PlanetInfo && selectedPlanet}

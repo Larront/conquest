@@ -78,7 +78,7 @@
 				<!-- User Info -->
 				<div class="border-b border-gray-700 p-4">
 					{#if errorMessage}
-						<div class="rounded bg-red-900/50 border border-red-500 p-3 text-red-200 text-sm">
+						<div class="rounded border border-red-500 bg-red-900/50 p-3 text-sm text-red-200">
 							{errorMessage}
 						</div>
 					{:else}

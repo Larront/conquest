@@ -49,7 +49,9 @@
 	{#if fallback}
 		{@render fallback()}
 	{:else}
-		<div class="flex min-h-64 items-center justify-center rounded border border-red-600 bg-red-900/20 p-8">
+		<div
+			class="flex min-h-64 items-center justify-center rounded border border-red-600 bg-red-900/20 p-8"
+		>
 			<div class="text-center">
 				<div class="mb-4 flex justify-center">
 					<Skull class="text-red-400" size={48} />

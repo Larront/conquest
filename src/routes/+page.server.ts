@@ -20,7 +20,9 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 		supabase.from('factions').select('name, allegiance'), // Only fields used in frontend
 		supabase
 			.from('user_factions')
-			.select('id, user_id, faction_name, faction_display_name, battles_won, battles_lost, battles_drawn, total_points, profiles!inner(username)')
+			.select(
+				'id, user_id, faction_name, faction_display_name, battles_won, battles_lost, battles_drawn, total_points, profiles!inner(username)'
+			)
 			.order('faction_display_name'),
 		safeGetSession()
 	]);

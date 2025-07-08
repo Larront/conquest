@@ -6,10 +6,7 @@ import { battleUploadSchema, sanitizeText } from '$lib/validation';
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 	// Run database queries in parallel and select only needed fields
-	const [
-		{ data: planets },
-		{ data: userFactions }
-	] = await Promise.all([
+	const [{ data: planets }, { data: userFactions }] = await Promise.all([
 		supabase.from('planets').select('id, name'), // Only fields needed for dropdown
 		supabase
 			.from('user_factions')
@@ -96,8 +93,10 @@ export const actions: Actions = {
 		}
 
 		const planet = battle.planet;
-		const winnerUserFactionId = battle.result === 'Attacker Victory' ? attackerUserFactionId : defenderUserFactionId;
-		const loserUserFactionId = battle.result === 'Attacker Victory' ? defenderUserFactionId : attackerUserFactionId;
+		const winnerUserFactionId =
+			battle.result === 'Attacker Victory' ? attackerUserFactionId : defenderUserFactionId;
+		const loserUserFactionId =
+			battle.result === 'Attacker Victory' ? defenderUserFactionId : attackerUserFactionId;
 		const winner = battle.result === 'Attacker Victory' ? battle.attacker : battle.defender;
 		const loser = battle.result === 'Attacker Victory' ? battle.defender : battle.attacker;
 
@@ -119,8 +118,10 @@ export const actions: Actions = {
 			}
 
 			// Update total points for both user factions
-			const winnerPoints = battle.result === 'Attacker Victory' ? Number(attackerPoints) : Number(defenderPoints);
-			const loserPoints = battle.result === 'Attacker Victory' ? Number(defenderPoints) : Number(attackerPoints);
+			const winnerPoints =
+				battle.result === 'Attacker Victory' ? Number(attackerPoints) : Number(defenderPoints);
+			const loserPoints =
+				battle.result === 'Attacker Victory' ? Number(defenderPoints) : Number(attackerPoints);
 
 			await supabase.rpc('execute_sql', {
 				query: `UPDATE user_factions SET total_points = total_points + ${winnerPoints} WHERE id = ${winnerUserFactionId}`
