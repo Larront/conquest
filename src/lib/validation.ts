@@ -130,6 +130,16 @@ export const passwordResetConfirmSchema = z
 		path: ['confirmPassword']
 	});
 
+// Faction Management Validation Schema
+export const factionManagementSchema = z.object({
+	factionName: z.string().min(1, 'Faction type is required'),
+	factionDisplayName: z
+		.string()
+		.min(1, 'Display name is required')
+		.max(50, 'Display name cannot exceed 50 characters'),
+	userFactionId: z.string().optional()
+});
+
 // Helper function to sanitize text input (prevent XSS)
 export function sanitizeText(text: string): string {
 	return text
@@ -147,3 +157,4 @@ export type UserProfileData = z.infer<typeof userUpdateSchema>;
 export type PasswordUpdateData = z.infer<typeof passwordUpdateSchema>;
 export type PasswordResetRequestData = z.infer<typeof passwordResetRequestSchema>;
 export type PasswordResetConfirmData = z.infer<typeof passwordResetConfirmSchema>;
+export type FactionManagementData = z.infer<typeof factionManagementSchema>;

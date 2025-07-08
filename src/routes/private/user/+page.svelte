@@ -1,12 +1,30 @@
 <script lang="ts">
 	import { supabase } from '$lib/supabaseClient';
-	import type { Faction, User } from '$lib/types.js';
-	import { X, Shield, UserIcon, Sword, Trophy, Calendar, Save, EyeOff, Eye } from '@lucide/svelte';
+	import type { Faction, User, UserFaction } from '$lib/types.js';
+	import {
+		X,
+		Shield,
+		UserIcon,
+		Sword,
+		Trophy,
+		Calendar,
+		Save,
+		EyeOff,
+		Eye,
+		Plus,
+		Edit,
+		Trash2
+	} from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
+	import { invalidateAll } from '$app/navigation';
 
 	let { data } = $props();
-	let { user, factions }: { user: User; factions: Faction[] | null } = $derived(data);
+	let {
+		user,
+		factions,
+		userFactions
+	}: { user: User; factions: Faction[] | null; userFactions: UserFaction[] } = $derived(data);
 	const {
 		form: passwordForm,
 		errors: passwordErrors,
@@ -21,6 +39,22 @@
 		enhance: userEnhance,
 		delayed: userDelayed
 	} = superForm(data.userForm);
+	const {
+		form: factionForm,
+		errors: factionErrors,
+		message: factionMessage,
+		enhance: factionEnhance,
+		delayed: factionDelayed
+	} = superForm(data.factionForm, {
+		onResult: async ({ result }) => {
+			if (result.type === 'success') {
+				// Reset form state on successful submission
+				cancelFactionEdit();
+				// Manually invalidate all data to refresh the faction list
+				await invalidateAll();
+			}
+		}
+	});
 
 	let activeTab = $state<'profile' | 'stats' | 'factions' | 'security'>('profile');
 	// Form data
@@ -37,6 +71,10 @@
 	let showNewPassword = $state(false);
 	let showConfirmPassword = $state(false);
 
+	// Faction management state
+	let editingFaction: UserFaction | null = $state(null);
+	let showAddFactionForm = $state(false);
+
 	function togglePasswordVisibility() {
 		showPassword = !showPassword;
 	}
@@ -47,6 +85,31 @@
 
 	function toggleConfirmPasswordVisibility() {
 		showConfirmPassword = !showConfirmPassword;
+	}
+
+	// Faction management functions
+	function startEditFaction(faction: UserFaction) {
+		editingFaction = faction;
+		$factionForm.factionName = faction.faction_name;
+		$factionForm.factionDisplayName = faction.faction_display_name;
+		$factionForm.userFactionId = faction.id.toString();
+		showAddFactionForm = false;
+	}
+
+	function startAddFaction() {
+		editingFaction = null;
+		$factionForm.factionName = '';
+		$factionForm.factionDisplayName = '';
+		$factionForm.userFactionId = '';
+		showAddFactionForm = true;
+	}
+
+	function cancelFactionEdit() {
+		editingFaction = null;
+		showAddFactionForm = false;
+		$factionForm.factionName = '';
+		$factionForm.factionDisplayName = '';
+		$factionForm.userFactionId = '';
 	}
 
 	onMount(() => {
@@ -179,7 +242,7 @@
 					{$userMessage}
 				</div>
 			{/if}
-			<form class="space-y-6" method="POST" action={'?/updateuser'} use:userEnhance>
+			<form class="space-y-6" method="POST" action="?/updateuser" use:userEnhance>
 				<div class="grid gap-6 md:grid-cols-2">
 					<div>
 						<label for="edit-username" class="mb-2 block text-sm font-bold text-yellow-300">
@@ -297,7 +360,7 @@
 					<div class="space-y-3">
 						<div class="flex justify-between">
 							<span class="text-gray-400">Enlisted:</span>
-							<span class="font-bold text-yellow-300"> {new Date(created_at)} </span>
+							<span class="font-bold text-yellow-300">{new Date(created_at).toLocaleDateString()}</span>
 						</div>
 						<div class="flex justify-between">
 							<span class="text-gray-400">Servitor ID:</span>
@@ -316,34 +379,187 @@
 				<div class="rounded border border-red-600 bg-red-900/10 p-4">
 					<h3 class="mb-2 text-lg font-bold text-red-300">Faction Management</h3>
 					<p class="text-sm text-gray-400">
-						Manage your faction allegiances. You can control multiple factions and track separate battle statistics for each.
+						Manage your faction allegiances. You can control multiple factions and track separate
+						battle statistics for each.
 					</p>
 				</div>
 
-				<!-- Quick Link to Full Faction Management -->
-				<div class="text-center">
-					<a
-						href="/private/user/factions"
-						class="inline-flex items-center gap-2 rounded bg-gradient-to-r from-red-700 to-red-600 px-6 py-3 font-bold text-yellow-100 transition-colors hover:from-red-600 hover:to-red-500"
+				<!-- General Error Message -->
+				{#if $factionMessage}
+					<div class="rounded border border-red-500 bg-red-900/20 p-4 text-red-300">
+						{$factionMessage}
+					</div>
+				{/if}
+
+				<!-- Add New Faction Button -->
+				<div class="mb-6">
+					<button
+						type="button"
+						onclick={startAddFaction}
+						class="flex items-center gap-2 rounded bg-gradient-to-r from-green-700 to-green-600 px-4 py-2 font-bold text-white transition-colors hover:from-green-600 hover:to-green-500"
 					>
-						<Sword size={18} />
-						Manage Factions
-					</a>
+						<Plus size={18} />
+						Add New Faction
+					</button>
 				</div>
 
-				<!-- Quick Faction Overview -->
-				<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
-					<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
-						<Trophy size={20} />
-						FACTION OVERVIEW
-					</h3>
-					<p class="mb-4 text-sm text-gray-400">
-						Visit the full faction management page to add, edit, or remove factions.
-					</p>
+				<!-- Add/Edit Form -->
+				{#if showAddFactionForm || editingFaction}
+					<div
+						class="rounded-lg border-2 border-yellow-600 bg-gradient-to-b from-gray-900 to-black p-6"
+					>
+						<h3 class="mb-4 text-xl font-bold text-yellow-300">
+							{editingFaction ? '++ EDIT FACTION ++' : '++ ADD NEW FACTION ++'}
+						</h3>
+
+						<form method="POST" action="?/savefaction" use:factionEnhance class="space-y-4">
+							{#if editingFaction}
+								<input type="hidden" name="userFactionId" bind:value={$factionForm.userFactionId} />
+							{/if}
+
+							<div class="grid gap-4 md:grid-cols-2">
+								<div>
+									<label for="factionName" class="mb-2 block text-sm font-bold text-yellow-300">
+										FACTION TYPE
+									</label>
+									<select
+										id="factionName"
+										name="factionName"
+										bind:value={$factionForm.factionName}
+										class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
+										required
+									>
+										<option value="">Select faction...</option>
+										{#each factions! as faction (faction.name)}
+											<option value={faction.name}>{faction.name} ({faction.allegiance})</option>
+										{/each}
+									</select>
+									{#if $factionErrors.factionName}
+										<p class="mt-1 text-sm text-red-400">{$factionErrors.factionName}</p>
+									{/if}
+								</div>
+
+								<div>
+									<label
+										for="factionDisplayName"
+										class="mb-2 block text-sm font-bold text-yellow-300"
+									>
+										DISPLAY NAME
+									</label>
+									<input
+										id="factionDisplayName"
+										name="factionDisplayName"
+										type="text"
+										bind:value={$factionForm.factionDisplayName}
+										placeholder="e.g., Aaron's Thousand Sons, My Space Marines"
+										class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 placeholder-gray-400 focus:border-yellow-500 focus:outline-none"
+										required
+									/>
+									{#if $factionErrors.factionDisplayName}
+										<p class="mt-1 text-sm text-red-400">{$factionErrors.factionDisplayName}</p>
+									{/if}
+								</div>
+							</div>
+
+							<div class="flex gap-3">
+								<button
+									type="submit"
+									disabled={$factionDelayed}
+									class="rounded bg-gradient-to-r from-yellow-700 to-yellow-600 px-4 py-2 font-bold text-black transition-colors hover:from-yellow-600 hover:to-yellow-500 disabled:opacity-50"
+								>
+									{editingFaction ? 'Update Faction' : 'Add Faction'}
+								</button>
+								<button
+									type="button"
+									onclick={cancelFactionEdit}
+									class="rounded border border-gray-600 bg-gray-800 px-4 py-2 text-gray-300 transition-colors hover:bg-gray-700"
+								>
+									Cancel
+								</button>
+							</div>
+						</form>
+					</div>
+				{/if}
+
+				<!-- User Factions List -->
+				<div class="space-y-4">
+					<h3 class="text-xl font-bold tracking-wider text-yellow-300">++ YOUR FACTIONS ++</h3>
+
+					{#if userFactions.length === 0}
+						<div class="rounded border border-gray-600 bg-gray-900/50 p-8 text-center">
+							<p class="text-gray-400">
+								No factions added yet. Add your first faction to start tracking battles!
+							</p>
+						</div>
+					{:else}
+						<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+							{#each userFactions as userFaction (userFaction.id)}
+								<div
+									class="rounded-lg border-2 border-red-600 bg-gradient-to-b from-gray-900 to-black p-4"
+								>
+									<div class="mb-3 flex items-center justify-between">
+										<div class="flex items-center gap-2">
+											<Sword class="text-red-400" size={20} />
+											<h4 class="font-bold text-red-300">{userFaction.faction_display_name}</h4>
+										</div>
+										<div class="flex gap-2">
+											<button
+												type="button"
+												onclick={() => startEditFaction(userFaction)}
+												class="rounded bg-blue-600 p-1 text-white transition-colors hover:bg-blue-500"
+												title="Edit faction"
+											>
+												<Edit size={14} />
+											</button>
+											<form
+												method="POST"
+												action="?/deletefaction"
+												use:factionEnhance
+												class="inline"
+											>
+												<input type="hidden" name="userFactionId" value={userFaction.id} />
+												<button
+													type="submit"
+													class="rounded bg-red-600 p-1 text-white transition-colors hover:bg-red-500"
+													title="Delete faction"
+													onclick={() => confirm('Are you sure you want to delete this faction?')}
+												>
+													<Trash2 size={14} />
+												</button>
+											</form>
+										</div>
+									</div>
+
+									<div class="mb-3 text-sm text-gray-400">
+										<span class="font-bold text-yellow-300">{userFaction.faction_name}</span>
+									</div>
+
+									<div class="space-y-2 text-sm">
+										<div class="flex justify-between">
+											<span class="text-green-400">Victories:</span>
+											<span class="font-bold text-white">{userFaction.battles_won}</span>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-red-400">Defeats:</span>
+											<span class="font-bold text-white">{userFaction.battles_lost}</span>
+										</div>
+										<div class="flex justify-between">
+											<span class="text-yellow-400">Draws:</span>
+											<span class="font-bold text-white">{userFaction.battles_drawn}</span>
+										</div>
+										<div class="flex justify-between border-t border-gray-600 pt-2">
+											<span class="text-blue-400">Total Points:</span>
+											<span class="font-bold text-white">{userFaction.total_points}</span>
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{/if}
 				</div>
 			</div>
 		{:else if activeTab === 'security'}
-			<form class="space-y-6" method="POST" action={'?/updatepassword'} use:passwordEnhance>
+			<form class="space-y-6" method="POST" action="?/updatepassword" use:passwordEnhance>
 				<div class="rounded border border-red-600 bg-red-900/10 p-4">
 					<h3 class="mb-2 text-lg font-bold text-red-300">Change Authorization Cipher</h3>
 					<p class="text-sm text-gray-400">
