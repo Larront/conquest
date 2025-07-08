@@ -146,7 +146,7 @@
 						<option value="">Select attacker...</option>
 						{#each userFactions as userFaction}
 							<option value={userFaction.id}
-								>{userFaction.profiles.username} ({userFaction.faction_display_name})</option
+								>{userFaction.faction_display_name} ({userFaction.profiles.username})</option
 							>
 						{/each}
 					</select>

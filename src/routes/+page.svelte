@@ -31,7 +31,7 @@
 						return {
 							...control,
 							profile: userFaction
-								? `${userFaction.profiles.username} (${userFaction.faction_display_name})`
+								? `${userFaction.faction_display_name} (${userFaction.profiles.username})`
 								: 'Unknown'
 						};
 					} else {
