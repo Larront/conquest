@@ -101,8 +101,7 @@ export const actions: Actions = {
 		}
 
 		const user_meta = {
-			username: sanitizedUsername,
-			faction: userForm.data.faction
+			username: sanitizedUsername
 		};
 
 		const { error } = await supabase.from('profiles').update(user_meta).eq('id', user.id);

@@ -56,7 +56,7 @@
 		}
 	});
 
-	let activeTab = $state<'profile' | 'stats' | 'factions' | 'security'>('profile');
+	let activeTab = $state<'profile' | 'factions' | 'security'>('profile');
 	// Form data
 	let username = $state('');
 	let id = $state('');
@@ -137,6 +137,9 @@
 				battles_drawn = parseInt(data.battles_drawn);
 				total_points = parseInt(data.total_points);
 				created_at = data.created_at;
+				
+				// Auto-fill the form field with current username
+				$userForm.username = data.username;
 			}
 		} catch (error) {
 			if (error instanceof Error) {
@@ -198,18 +201,6 @@
 		</button>
 		<button
 			onclick={() => {
-				activeTab = 'stats';
-			}}
-			class="flex items-center gap-2 px-6 py-3 text-sm font-bold transition-colors {activeTab ===
-			'stats'
-				? 'border-b-2 border-yellow-500 text-yellow-300'
-				: 'text-gray-400 hover:text-yellow-200'}"
-		>
-			<Trophy size={16} />
-			Statistics
-		</button>
-		<button
-			onclick={() => {
 				activeTab = 'factions';
 			}}
 			class="flex items-center gap-2 px-6 py-3 text-sm font-bold transition-colors {activeTab ===
@@ -242,96 +233,107 @@
 					{$userMessage}
 				</div>
 			{/if}
-			<form class="space-y-6" method="POST" action="?/updateuser" use:userEnhance>
-				<div class="grid gap-6 md:grid-cols-2">
-					<div>
-						<label for="edit-username" class="mb-2 block text-sm font-bold text-yellow-300">
-							SERVITOR DESIGNATION
-						</label>
-						<input
-							id="edit-username"
-							name="username"
-							type="text"
-							aria-invalid={$userErrors.username ? 'true' : undefined}
-							bind:value={$userForm.username}
-							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
-						/>
-						{#if $userErrors.username}
-							<p class="mt-1 text-sm text-red-400">{$userErrors.username}</p>
-						{/if}
+
+			<div class="grid gap-6 lg:grid-cols-2">
+				<!-- Profile Information -->
+				<div class="space-y-6">
+					<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
+						<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
+							<UserIcon size={20} />
+							PROFILE INFORMATION
+						</h3>
+
+						<form class="space-y-4" method="POST" action="?/updateuser" use:userEnhance>
+							<div>
+								<label for="edit-username" class="mb-2 block text-sm font-bold text-yellow-300">
+									SERVITOR DESIGNATION
+								</label>
+								<input
+									id="edit-username"
+									name="username"
+									type="text"
+									aria-invalid={$userErrors.username ? 'true' : undefined}
+									bind:value={$userForm.username}
+									class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
+								/>
+								{#if $userErrors.username}
+									<p class="mt-1 text-sm text-red-400">{$userErrors.username}</p>
+								{/if}
+							</div>
+
+							<button
+								type="submit"
+								disabled={$userDelayed}
+								class="flex items-center gap-2 rounded bg-gradient-to-r from-yellow-700 to-yellow-600 px-4 py-2 font-bold text-black transition-colors hover:from-yellow-600 hover:to-yellow-500 disabled:opacity-50"
+							>
+								<Save size={18} />
+								{$userDelayed ? 'UPDATING...' : 'UPDATE PROFILE'}
+							</button>
+						</form>
 					</div>
 
-					<div>
-						<label for="edit-faction" class="mb-2 block text-sm font-bold text-yellow-300">
-							ALLEGIANCE
-						</label>
-						<select
-							id="edit-faction"
-							name="faction"
-							aria-invalid={$userErrors.faction ? 'true' : undefined}
-							bind:value={$userForm.faction}
-							class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
-						>
-							{#each factions! as factionOption}
-								<option value={factionOption.name}>{factionOption.name}</option>
-							{/each}
-						</select>
-						{#if $userErrors.faction}
-							<p class="mt-1 text-sm text-red-400">{$userErrors.faction}</p>
-						{/if}
-					</div>
-				</div>
+					<!-- Account Information -->
+					<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
+						<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
+							<Calendar size={20} />
+							ACCOUNT INFORMATION
+						</h3>
 
-				<button
-					type="submit"
-					disabled={$userDelayed}
-					class="flex items-center gap-2 rounded bg-gradient-to-r from-yellow-700 to-yellow-600 px-4 py-2 font-bold text-black transition-colors hover:from-yellow-600 hover:to-yellow-500 disabled:opacity-50"
-				>
-					<Save size={18} />
-					{$userDelayed ? 'UPDATING...' : 'UPDATE PROFILE'}
-				</button>
-			</form>
-		{:else if activeTab === 'stats'}
-			<div class="space-y-6">
-				<!-- Battle Statistics -->
-				<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
-					<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
-						<Sword size={20} />
-						COMBAT RECORD
-					</h3>
-
-					<div class="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-						<div class="text-center">
-							<div class="text-2xl font-bold text-green-400">{battles_won}</div>
-							<div class="text-sm text-gray-400">Victories</div>
-						</div>
-						<div class="text-center">
-							<div class="text-2xl font-bold text-red-400">{battles_lost}</div>
-							<div class="text-sm text-gray-400">Defeats</div>
-						</div>
-						<div class="text-center">
-							<div class="text-2xl font-bold text-yellow-400">{battles_drawn}</div>
-							<div class="text-sm text-gray-400">Draws</div>
-						</div>
-						<div class="text-center">
-							<div class="text-2xl font-bold text-blue-400">{getBattleRatio()}</div>
-							<div class="text-sm text-gray-400">Win Rate</div>
-						</div>
-					</div>
-
-					<div class="grid gap-4 md:grid-cols-2">
-						<div class="space-y-2">
+						<div class="space-y-3">
 							<div class="flex justify-between">
-								<span class="text-gray-400">Total Points Earned:</span>
-								<span class="font-bold text-yellow-300">{total_points}</span>
+								<span class="text-gray-400">Enlisted:</span>
+								<span class="font-bold text-yellow-300"
+									>{new Date(created_at).toLocaleDateString()}</span
+								>
+							</div>
+							<div class="flex justify-between">
+								<span class="text-gray-400">Servitor ID:</span>
+								<span class="font-mono font-bold text-yellow-300">{id}</span>
+							</div>
+							<div class="flex justify-between">
+								<span class="text-gray-400">Security Clearance:</span>
+								<span class="font-bold text-green-400">ACTIVE</span>
 							</div>
 							<div class="flex justify-between">
 								<span class="text-gray-400">Account Age:</span>
 								<span class="font-bold text-yellow-300">{getAccountAge()}</span>
 							</div>
 						</div>
+					</div>
+				</div>
+
+				<!-- Battle Statistics -->
+				<div class="space-y-6">
+					<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
+						<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
+							<Sword size={20} />
+							COMBAT RECORD
+						</h3>
+
+						<div class="mb-6 grid grid-cols-2 gap-4">
+							<div class="text-center">
+								<div class="text-2xl font-bold text-green-400">{battles_won}</div>
+								<div class="text-sm text-gray-400">Victories</div>
+							</div>
+							<div class="text-center">
+								<div class="text-2xl font-bold text-red-400">{battles_lost}</div>
+								<div class="text-sm text-gray-400">Defeats</div>
+							</div>
+							<div class="text-center">
+								<div class="text-2xl font-bold text-yellow-400">{battles_drawn}</div>
+								<div class="text-sm text-gray-400">Draws</div>
+							</div>
+							<div class="text-center">
+								<div class="text-2xl font-bold text-blue-400">{getBattleRatio()}%</div>
+								<div class="text-sm text-gray-400">Win Rate</div>
+							</div>
+						</div>
 
 						<div class="space-y-2">
+							<div class="flex justify-between">
+								<span class="text-gray-400">Total Points Earned:</span>
+								<span class="font-bold text-yellow-300">{total_points}</span>
+							</div>
 							<div class="flex justify-between">
 								<span class="text-gray-400">Battles Reported:</span>
 								<span class="font-bold text-yellow-300">
@@ -346,29 +348,6 @@
 									)}
 								</span>
 							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Account Info -->
-				<div class="rounded border border-yellow-600 bg-gray-900/50 p-6">
-					<h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-yellow-300">
-						<Calendar size={20} />
-						ACCOUNT INFORMATION
-					</h3>
-
-					<div class="space-y-3">
-						<div class="flex justify-between">
-							<span class="text-gray-400">Enlisted:</span>
-							<span class="font-bold text-yellow-300">{new Date(created_at).toLocaleDateString()}</span>
-						</div>
-						<div class="flex justify-between">
-							<span class="text-gray-400">Servitor ID:</span>
-							<span class="font-mono font-bold text-yellow-300">{id}</span>
-						</div>
-						<div class="flex justify-between">
-							<span class="text-gray-400">Security Clearance:</span>
-							<span class="font-bold text-green-400">ACTIVE</span>
 						</div>
 					</div>
 				</div>

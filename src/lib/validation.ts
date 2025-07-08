@@ -86,8 +86,7 @@ export const userUpdateSchema = z.object({
 			// Check for prohibited usernames
 			const prohibited = ['admin', 'root', 'system', 'null', 'undefined', 'test'];
 			return !prohibited.includes(username.toLowerCase());
-		}, 'Username is not allowed'),
-	faction: z.string().min(1, 'Faction selection is required')
+		}, 'Username is not allowed')
 });
 
 // Password Update Validation Schema
