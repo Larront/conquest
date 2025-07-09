@@ -83,7 +83,7 @@ Relies on SvelteKit's built-in state management with server-side data loading th
 - Use `npm run lint` to check formatting and style
 - Prefer running focused tests rather than full test suite
 - Always validate forms with Zod schemas when using superforms
-- Use the scratchpads folder to document your plans, creating markdown files for each plan with each step written down.
+- Use the scratchpads folder to document your plans, creating markdown files for each plan with each step written down. When you make a commit that relates to the plan, make sure you include the relevant markdown file in the commit.
 
 ## Environment Variables
 
