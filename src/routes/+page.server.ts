@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
 	] = await Promise.all([
 		supabase.from('planets').select(), // All fields needed for planet display
 		supabase.from('battles').select(), // All fields needed for battle history
-		supabase.from('profiles').select('id, faction, username'), // Only fields used in frontend
+		supabase.from('profiles').select('id, username'), // Only fields used in frontend
 		supabase.from('control').select(), // All fields needed for faction control
 		supabase.from('factions').select('name, allegiance'), // Only fields used in frontend
 		supabase

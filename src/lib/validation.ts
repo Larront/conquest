@@ -13,8 +13,7 @@ export const userCreationSchema = z.object({
 			return !prohibited.includes(username.toLowerCase());
 		}, 'Username is not allowed'),
 	email: z.email({ pattern: z.regexes.unicodeEmail }),
-	password: z.string().min(8, 'Password must be at least 8 characters'),
-	faction: z.string().min(1, 'Faction selection is required')
+	password: z.string().min(8, 'Password must be at least 8 characters')
 });
 
 // Battle Upload Validation Schema

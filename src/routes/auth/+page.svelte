@@ -4,7 +4,6 @@
 	import { superForm } from 'sveltekit-superforms';
 
 	let { data } = $props();
-	let { factions } = $derived(data);
 	let mode: 'signin' | 'signup' = $state('signin');
 
 	const { form, errors, message, enhance, delayed } = superForm(data.form);
@@ -130,28 +129,6 @@
 				<p class="mt-1 text-sm text-red-400">{$errors.password}</p>
 			{/if}
 		</div>
-
-		{#if mode === 'signup'}
-			<div>
-				<label for="faction" class="mb-2 block text-sm font-bold text-yellow-300">
-					ALLEGIANCE
-				</label>
-				<select
-					id="faction"
-					name="faction"
-					aria-invalid={$errors.faction ? 'true' : undefined}
-					bind:value={$form.faction}
-					class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-yellow-100 focus:border-yellow-500 focus:outline-none"
-				>
-					{#each factions as factionOption}
-						<option value={factionOption.name}>{factionOption.name}</option>
-					{/each}
-				</select>
-			</div>
-			{#if $errors.faction}
-				<p class="mt-1 text-sm text-red-400">{$errors.faction}</p>
-			{/if}
-		{/if}
 
 		<button
 			type="submit"

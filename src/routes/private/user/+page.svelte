@@ -58,9 +58,7 @@
 
 	let activeTab = $state<'profile' | 'factions' | 'security'>('profile');
 	// Form data
-	let username = $state('');
 	let id = $state('');
-	let faction = $state('');
 	let battles_won = $state(0);
 	let battles_lost = $state(0);
 	let battles_drawn = $state(0);
@@ -120,24 +118,20 @@
 		try {
 			const { data, error, status } = await supabase
 				.from('profiles')
-				.select(
-					'username, faction, battles_won, battles_lost, battles_drawn, total_points, created_at'
-				)
+				.select('username, battles_won, battles_lost, battles_drawn, total_points, created_at')
 				.eq('id', user.id)
 				.single();
 
 			if (error && status !== 406) throw error;
 
 			if (data) {
-				username = data.username;
-				faction = data.faction;
 				id = user.id;
 				battles_won = parseInt(data.battles_won);
 				battles_lost = parseInt(data.battles_lost);
 				battles_drawn = parseInt(data.battles_drawn);
 				total_points = parseInt(data.total_points);
 				created_at = data.created_at;
-				
+
 				// Auto-fill the form field with current username
 				$userForm.username = data.username;
 			}
@@ -175,10 +169,7 @@
 	>
 		<div class="flex items-center gap-3">
 			<UserIcon class="text-yellow-400" size={24} />
-			<div>
-				<h2 class="text-xl font-bold tracking-wider text-yellow-200">++ SERVITOR RECORDS ++</h2>
-				<p class="text-sm text-yellow-300">{username} • {faction}</p>
-			</div>
+			<h2 class="text-xl font-bold tracking-wider text-yellow-200">++ SERVITOR RECORDS ++</h2>
 		</div>
 		<a href="/" class="text-yellow-200 transition-colors hover:text-red-400">
 			<X size={20} />

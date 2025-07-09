@@ -38,8 +38,7 @@
 						// Fallback for legacy control entries
 						return {
 							...control,
-							profile:
-								profiles.find((profile) => profile.id == control.profile)?.faction || 'Contested'
+							profile: 'Contested'
 						};
 					}
 				}),
@@ -56,15 +55,11 @@
 						);
 						attackerName = attackerFaction
 							? `${attackerFaction.profiles.username} (${attackerFaction.faction_display_name})`
-							: profiles.find((profile) => profile.id == battle.attacker)?.faction +
-								' - ' +
-								profiles.find((profile) => profile.id == battle.attacker)?.username;
+							: profiles.find((profile) => profile.id == battle.attacker)?.username || 'Unknown';
 					} else {
 						// Fallback for legacy battles
 						attackerName =
-							profiles.find((profile) => profile.id == battle.attacker)?.faction +
-							' - ' +
-							profiles.find((profile) => profile.id == battle.attacker)?.username;
+							profiles.find((profile) => profile.id == battle.attacker)?.username || 'Unknown';
 					}
 
 					if (battle.defender_user_faction_id) {
@@ -73,15 +68,11 @@
 						);
 						defenderName = defenderFaction
 							? `${defenderFaction.profiles.username} (${defenderFaction.faction_display_name})`
-							: profiles.find((profile) => profile.id == battle.defender)?.faction +
-								' - ' +
-								profiles.find((profile) => profile.id == battle.defender)?.username;
+							: profiles.find((profile) => profile.id == battle.defender)?.username || 'Unknown';
 					} else {
 						// Fallback for legacy battles
 						defenderName =
-							profiles.find((profile) => profile.id == battle.defender)?.faction +
-							' - ' +
-							profiles.find((profile) => profile.id == battle.defender)?.username;
+							profiles.find((profile) => profile.id == battle.defender)?.username || 'Unknown';
 					}
 
 					return {
