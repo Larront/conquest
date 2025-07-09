@@ -6,15 +6,13 @@ import { fail, superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
 import { userCreationSchema } from '$lib/validation';
 
-export const load: PageServerLoad = async ({ locals: { supabase }, url }) => {
-	const { data: factions } = await supabase.from('factions').select();
+export const load: PageServerLoad = async ({ url }) => {
 	const form = await superValidate(zod4(userCreationSchema));
 
 	// Handle success messages from URL parameters
 	const successMessage = url.searchParams.get('message');
 
 	return {
-		factions: factions ?? [],
 		form,
 		successMessage
 	};
@@ -35,7 +33,6 @@ export const actions: Actions = {
 			password: form.data.password,
 			options: {
 				data: {
-					faction: form.data.faction,
 					username: form.data.username
 				},
 				emailRedirectTo

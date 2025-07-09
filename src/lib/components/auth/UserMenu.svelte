@@ -16,7 +16,6 @@
 
 	let loading = $state(false);
 	let username: string | null = $state(null);
-	let faction: string | null = $state(null);
 	let battles_won: number | null = $state(null);
 	let battles_lost: number | null = $state(null);
 	let battles_drawn: number | null = $state(null);
@@ -31,7 +30,7 @@
 			loading = true;
 			const { data, error, status } = await supabase
 				.from('profiles')
-				.select('username, faction, battles_won, battles_lost, battles_drawn, total_points')
+				.select('username, battles_won, battles_lost, battles_drawn, total_points')
 				.eq('id', user.id)
 				.single();
 
@@ -39,7 +38,6 @@
 
 			if (data) {
 				username = data.username;
-				faction = data.faction;
 				battles_won = data.battles_won;
 				battles_lost = data.battles_lost;
 				battles_drawn = data.battles_drawn;
@@ -78,7 +76,7 @@
 				<!-- User Info -->
 				<div class="border-b border-gray-700 p-4">
 					{#if errorMessage}
-						<div class="rounded bg-red-900/50 border border-red-500 p-3 text-red-200 text-sm">
+						<div class="rounded border border-red-500 bg-red-900/50 p-3 text-sm text-red-200">
 							{errorMessage}
 						</div>
 					{:else}
@@ -88,7 +86,6 @@
 							</div>
 							<div>
 								<p class="font-bold text-yellow-200">{username}</p>
-								<p class="text-sm text-gray-400">{faction}</p>
 							</div>
 						</div>
 					{/if}

@@ -3,7 +3,7 @@
 	import { superForm } from 'sveltekit-superforms';
 
 	let { data } = $props();
-	let { planets, profiles } = $derived(data);
+	let { planets, userFactions } = $derived(data);
 
 	const { form, errors, message, enhance, delayed, submitting } = superForm(data.form);
 	let hasSubmitted = $state(false);
@@ -144,8 +144,10 @@
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 focus:border-red-500 focus:outline-none"
 					>
 						<option value="">Select attacker...</option>
-						{#each profiles as profile}
-							<option value={profile.id}>{profile.username} - {profile.faction}</option>
+						{#each userFactions as userFaction}
+							<option value={userFaction.id}
+								>{userFaction.faction_display_name} ({userFaction.profiles.username})</option
+							>
 						{/each}
 					</select>
 					{#if $errors.attacker && hasSubmitted}
@@ -166,8 +168,10 @@
 						class="w-full rounded border border-gray-600 bg-gray-800 px-4 py-2 text-red-100 focus:border-red-500 focus:outline-none"
 					>
 						<option value="">Select defender...</option>
-						{#each profiles as profile}
-							<option value={profile.id}>{profile.username} - {profile.faction}</option>
+						{#each userFactions as userFaction}
+							<option value={userFaction.id}
+								>{userFaction.profiles.username} ({userFaction.faction_display_name})</option
+							>
 						{/each}
 					</select>
 					{#if $errors.defender && hasSubmitted}

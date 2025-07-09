@@ -5,24 +5,28 @@ A **Warhammer 40K** planetary battle tracker and faction control visualization s
 ## ✨ Features
 
 ### 🚀 Interactive Solar System
+
 - **3D-style planet visualization** with unique designs for each world type
 - **Real-time faction control rings** showing territorial dominance
 - **Responsive design** optimized for both desktop and mobile
 - **Performance-optimized rendering** with intersection observers and lazy loading
 
 ### ⚔️ Battle Management
+
 - **Comprehensive battle reporting** with attacker/defender tracking
 - **Automatic faction control updates** based on battle outcomes
 - **Battle history visualization** with detailed statistics
 - **Points tracking and validation** for competitive play
 
 ### 👤 User System
+
 - **Secure authentication** via Supabase Auth
 - **Player profiles** with faction allegiance and battle statistics
 - **Win/loss/draw tracking** with comprehensive leaderboards
 - **Profile customization** with faction selection
 
 ### 📊 Data Visualization
+
 - **Interactive pie charts** showing faction control percentages
 - **Battle timeline** with filterable history
 - **Faction-coded visual elements** for quick identification
@@ -31,6 +35,7 @@ A **Warhammer 40K** planetary battle tracker and faction control visualization s
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **[SvelteKit 2.x](https://kit.svelte.dev/)** with **[Svelte 5](https://svelte.dev/)** (latest features)
 - **[TypeScript](https://www.typescriptlang.org/)** with strict mode for type safety
 - **[Tailwind CSS 4.x](https://tailwindcss.com/)** for styling and responsive design
@@ -38,17 +43,20 @@ A **Warhammer 40K** planetary battle tracker and faction control visualization s
 - **[bits-ui](https://bits-ui.com/)** & **[vaul-svelte](https://vaul.emilkowal.ski/)** for UI components
 
 ### Backend & Database
+
 - **[Supabase](https://supabase.com/)** for authentication, database, and real-time features
 - **PostgreSQL** with Row Level Security (RLS) policies
 - **Real-time subscriptions** for live battle updates
 
 ### Performance & Optimization
+
 - **Dynamic imports** for code splitting and faster initial loads
 - **Intersection Observer API** for efficient rendering
 - **Lazy loading** for components and heavy libraries
 - **Bundle analysis** and optimization
 
 ### Development & Deployment
+
 - **[Vercel](https://vercel.com/)** deployment with `@sveltejs/adapter-vercel`
 - **ESLint** + **Prettier** for code formatting and quality
 - **Zod** for runtime validation and type safety
@@ -82,13 +90,14 @@ PUBLIC_EMAIL_REDIRECT_URL=http://localhost:5173/auth/confirm
 ### 3. Database Setup
 
 The project requires the following Supabase tables:
+
 - `planets` - Planetary information and characteristics
 - `battles` - Battle records and results
 - `profiles` - User profiles and statistics
 - `control` - Faction control percentages per planet
 - `factions` - Available factions and their allegiances
 
-*See `CLAUDE.md` for detailed schema information.*
+_See `CLAUDE.md` for detailed schema information._
 
 ### 4. Development Server
 
@@ -100,15 +109,15 @@ Visit `http://localhost:5173` to see the application.
 
 ## 📋 Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Create production build |
+| Command                 | Description                |
+| ----------------------- | -------------------------- |
+| `npm run dev`           | Start development server   |
+| `npm run build`         | Create production build    |
 | `npm run build:analyze` | Build with bundle analysis |
-| `npm run preview` | Preview production build |
-| `npm run check` | Run TypeScript checks |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format code with Prettier |
+| `npm run preview`       | Preview production build   |
+| `npm run check`         | Run TypeScript checks      |
+| `npm run lint`          | Run ESLint                 |
+| `npm run format`        | Format code with Prettier  |
 
 ## 🏗️ Project Structure
 
@@ -170,6 +179,7 @@ vercel
 ### Environment Variables
 
 Ensure these are set in your deployment environment:
+
 - `PUBLIC_SUPABASE_URL`
 - `PUBLIC_SUPABASE_ANON_KEY`
 - `PUBLIC_EMAIL_REDIRECT_URL`
@@ -231,4 +241,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-*For the Emperor! In the grim darkness of the far future, there is only war... and comprehensive battle tracking.*
+_For the Emperor! In the grim darkness of the far future, there is only war... and comprehensive battle tracking._

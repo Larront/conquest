@@ -15,7 +15,7 @@
 	let planetInfoOpen = $state(false);
 
 	let { data } = $props();
-	let { planets, battles, profiles, control, factions, user } = $derived(data);
+	let { planets, battles, profiles, control, factions, userFactions, user } = $derived(data);
 
 	let isMobile = new IsMobile();
 
@@ -24,23 +24,63 @@
 			angle: Math.floor(Math.random() * (359 - 0 + 1) + 0),
 			faction_control: control
 				.filter((entry) => entry.planet == planet.id)
-				.map((control) => ({
-					...control,
-					profile: profiles.find((profile) => profile.id == control.profile)?.faction || 'Contested'
-				})),
+				.map((control) => {
+					// Try to find user faction first, fallback to profile-based control
+					if (control.user_faction_id) {
+						const userFaction = userFactions.find((uf) => uf.id == control.user_faction_id);
+						return {
+							...control,
+							profile: userFaction
+								? `${userFaction.faction_display_name} (${userFaction.profiles.username})`
+								: 'Unknown'
+						};
+					} else {
+						// Fallback for legacy control entries
+						return {
+							...control,
+							profile: 'Contested'
+						};
+					}
+				}),
 			battle_history: battles
 				.filter((battle) => battle.planet == planet.id)
-				.map((battle) => ({
-					...battle,
-					attacker:
-						profiles.find((profile) => profile.id == battle.attacker).faction +
-						' - ' +
-						profiles.find((profile) => profile.id == battle.attacker).username,
-					defender:
-						profiles.find((profile) => profile.id == battle.defender).faction +
-						' - ' +
-						profiles.find((profile) => profile.id == battle.defender).username
-				})),
+				.map((battle) => {
+					// Try to get user faction names for battles with user_faction_id
+					let attackerName = '';
+					let defenderName = '';
+
+					if (battle.attacker_user_faction_id) {
+						const attackerFaction = userFactions.find(
+							(uf) => uf.id == battle.attacker_user_faction_id
+						);
+						attackerName = attackerFaction
+							? `${attackerFaction.profiles.username} (${attackerFaction.faction_display_name})`
+							: profiles.find((profile) => profile.id == battle.attacker)?.username || 'Unknown';
+					} else {
+						// Fallback for legacy battles
+						attackerName =
+							profiles.find((profile) => profile.id == battle.attacker)?.username || 'Unknown';
+					}
+
+					if (battle.defender_user_faction_id) {
+						const defenderFaction = userFactions.find(
+							(uf) => uf.id == battle.defender_user_faction_id
+						);
+						defenderName = defenderFaction
+							? `${defenderFaction.profiles.username} (${defenderFaction.faction_display_name})`
+							: profiles.find((profile) => profile.id == battle.defender)?.username || 'Unknown';
+					} else {
+						// Fallback for legacy battles
+						defenderName =
+							profiles.find((profile) => profile.id == battle.defender)?.username || 'Unknown';
+					}
+
+					return {
+						...battle,
+						attacker: attackerName,
+						defender: defenderName
+					};
+				}),
 			...planet
 		}))
 	);
@@ -258,7 +298,9 @@
 				</button>
 				{#if isPlanetInfoLoading}
 					<div class="flex h-64 items-center justify-center">
-						<div class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"></div>
+						<div
+							class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"
+						></div>
 						<span class="ml-2 text-yellow-300">Loading planet details...</span>
 					</div>
 				{:else if PlanetInfo && selectedPlanet}
@@ -288,7 +330,9 @@
 				</button>
 				{#if isPlanetInfoLoading}
 					<div class="flex h-64 items-center justify-center">
-						<div class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"></div>
+						<div
+							class="h-8 w-8 animate-spin rounded-full border-2 border-yellow-400 border-t-transparent"
+						></div>
 						<span class="ml-2 text-yellow-300">Loading planet details...</span>
 					</div>
 				{:else if PlanetInfo && selectedPlanet}

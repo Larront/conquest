@@ -12,7 +12,18 @@
 			.catch((error) => {
 				console.error('Failed to load color scheme:', error);
 				// Fallback color scheme
-				schemeTableau10 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'] as const;
+				schemeTableau10 = [
+					'#1f77b4',
+					'#ff7f0e',
+					'#2ca02c',
+					'#d62728',
+					'#9467bd',
+					'#8c564b',
+					'#e377c2',
+					'#7f7f7f',
+					'#bcbd22',
+					'#17becf'
+				] as const;
 			});
 	});
 	import type { Planet } from '$lib/types';
@@ -122,7 +133,9 @@
 				<div class="h-[256px] w-auto overflow-auto p-4">
 					{#if isChartLoading}
 						<div class="flex h-full items-center justify-center">
-							<div class="h-8 w-8 animate-spin rounded-full border-2 border-red-400 border-t-transparent"></div>
+							<div
+								class="h-8 w-8 animate-spin rounded-full border-2 border-red-400 border-t-transparent"
+							></div>
 							<span class="ml-2 text-sm text-red-300">Loading chart...</span>
 						</div>
 					{:else if PieChart}

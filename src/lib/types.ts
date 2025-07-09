@@ -34,6 +34,7 @@ export interface FactionControl {
 	planet: string;
 	profile: string;
 	control: number;
+	user_faction_id?: number;
 }
 
 export interface Faction {
@@ -42,13 +43,26 @@ export interface Faction {
 	icon: string;
 }
 
-export interface User {
-	id: string;
-	username: string;
-	faction: string;
+export interface UserFaction {
+	id: number;
+	user_id: string;
+	faction_name: string;
+	faction_display_name: string;
 	battles_won: number;
 	battles_lost: number;
 	battles_drawn: number;
 	total_points: number;
 	created_at: string;
+	username?: string; // Joined from profiles table
+}
+
+export interface User {
+	id: string;
+	username: string;
+	battles_won: number;
+	battles_lost: number;
+	battles_drawn: number;
+	total_points: number;
+	created_at: string;
+	user_factions?: UserFaction[];
 }

@@ -11,22 +11,25 @@ export class IntersectionObserverManager {
 
 	constructor(options: IntersectionObserverInit = {}) {
 		if (typeof window !== 'undefined') {
-			this.observer = new IntersectionObserver((entries) => {
-				entries.forEach((entry) => {
-					const callback = this.observedElements.get(entry.target);
-					if (callback) {
-						if (entry.isIntersecting) {
-							callback();
-							// Once intersected, we can stop observing this element
-							this.unobserve(entry.target);
+			this.observer = new IntersectionObserver(
+				(entries) => {
+					entries.forEach((entry) => {
+						const callback = this.observedElements.get(entry.target);
+						if (callback) {
+							if (entry.isIntersecting) {
+								callback();
+								// Once intersected, we can stop observing this element
+								this.unobserve(entry.target);
+							}
 						}
-					}
-				});
-			}, {
-				rootMargin: '50px', // Start loading 50px before entering viewport
-				threshold: 0.1,
-				...options
-			});
+					});
+				},
+				{
+					rootMargin: '50px', // Start loading 50px before entering viewport
+					threshold: 0.1,
+					...options
+				}
+			);
 		}
 	}
 
@@ -57,7 +60,7 @@ export function useIntersectionObserver(options?: IntersectionObserverInit) {
 
 	onMount(() => {
 		manager = new IntersectionObserverManager(options);
-		
+
 		return () => {
 			manager?.disconnect();
 		};

@@ -13,8 +13,7 @@ export const userCreationSchema = z.object({
 			return !prohibited.includes(username.toLowerCase());
 		}, 'Username is not allowed'),
 	email: z.email({ pattern: z.regexes.unicodeEmail }),
-	password: z.string().min(8, 'Password must be at least 8 characters'),
-	faction: z.string().min(1, 'Faction selection is required')
+	password: z.string().min(8, 'Password must be at least 8 characters')
 });
 
 // Battle Upload Validation Schema
@@ -28,8 +27,8 @@ export const battleUploadSchema = z
 			.number()
 			.min(500, 'Points must be at least 500')
 			.max(2000, 'Points cannot exceed 2000'),
-		attacker: z.uuid('Invalid attacker selection'),
-		defender: z.uuid('Invalid defender selection'),
+		attacker: z.coerce.number().min(1, 'Invalid attacker selection'),
+		defender: z.coerce.number().min(1, 'Invalid defender selection'),
 		attackerPoints: z.coerce
 			.number()
 			.min(0, 'Attacker points cannot be negative')
@@ -86,8 +85,7 @@ export const userUpdateSchema = z.object({
 			// Check for prohibited usernames
 			const prohibited = ['admin', 'root', 'system', 'null', 'undefined', 'test'];
 			return !prohibited.includes(username.toLowerCase());
-		}, 'Username is not allowed'),
-	faction: z.string().min(1, 'Faction selection is required')
+		}, 'Username is not allowed')
 });
 
 // Password Update Validation Schema
@@ -130,6 +128,16 @@ export const passwordResetConfirmSchema = z
 		path: ['confirmPassword']
 	});
 
+// Faction Management Validation Schema
+export const factionManagementSchema = z.object({
+	factionName: z.string().min(1, 'Faction type is required'),
+	factionDisplayName: z
+		.string()
+		.min(1, 'Display name is required')
+		.max(50, 'Display name cannot exceed 50 characters'),
+	userFactionId: z.string().optional()
+});
+
 // Helper function to sanitize text input (prevent XSS)
 export function sanitizeText(text: string): string {
 	return text
@@ -147,3 +155,4 @@ export type UserProfileData = z.infer<typeof userUpdateSchema>;
 export type PasswordUpdateData = z.infer<typeof passwordUpdateSchema>;
 export type PasswordResetRequestData = z.infer<typeof passwordResetRequestSchema>;
 export type PasswordResetConfirmData = z.infer<typeof passwordResetConfirmSchema>;
+export type FactionManagementData = z.infer<typeof factionManagementSchema>;
