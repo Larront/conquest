@@ -5,8 +5,8 @@ import type { ComponentType, SvelteComponent } from 'svelte';
  * Custom render function with default options
  */
 export function renderComponent<T extends SvelteComponent>(
-	Component: ComponentType<T>,
-	options?: RenderOptions<T>
+	Component: any,
+	options?: any
 ) {
 	return render(Component, {
 		...options

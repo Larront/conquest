@@ -87,7 +87,7 @@ describe('Auth Integration Tests', () => {
 			const { mockAuth } = await import('../../utils/mock-supabase').then(m => m.createMockSupabaseClient());
 			
 			// Mock successful password reset request
-			mockAuth.resetPasswordForEmail = vi.fn().mockResolvedValue(createSuccessResponse({}));
+			mockAuth.resetPasswordForEmail.mockResolvedValue(createSuccessResponse({}));
 
 			expect(mockAuth.resetPasswordForEmail).toBeDefined();
 		});

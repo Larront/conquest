@@ -44,7 +44,6 @@ export const battleUploadSchema = z
 		battleDate: z.string().refine((dateStr) => {
 			const date = new Date(new Date(dateStr).toDateString());
 			const now = new Date(new Date().toDateString());
-			console.log(date, now);
 			return date <= now;
 		}, 'Battle date must not be in the future')
 	})

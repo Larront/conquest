@@ -43,7 +43,8 @@ export function createMockSupabaseClient() {
 		getUser: mockGetUser,
 		getSession: mockGetSession,
 		onAuthStateChange: mockOnAuthStateChange,
-		updateUser: mockUpdateUser
+		updateUser: mockUpdateUser,
+		resetPasswordForEmail: vi.fn()
 	};
 
 	const mockSupabase = {

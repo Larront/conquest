@@ -41,7 +41,7 @@ describe('cn utility function', () => {
 
 	it('should handle complex combinations', () => {
 		const isActive = true;
-		const size = 'large';
+		const size = 'large' as 'small' | 'large';
 		
 		const result = cn(
 			'base-class',

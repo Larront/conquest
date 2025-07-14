@@ -5,8 +5,12 @@ import { beforeAll, vi } from 'vitest';
 global.IntersectionObserver = vi.fn(() => ({
 	observe: vi.fn(),
 	disconnect: vi.fn(),
-	unobserve: vi.fn()
-}));
+	unobserve: vi.fn(),
+	root: null,
+	rootMargin: '',
+	thresholds: [],
+	takeRecords: vi.fn(() => [])
+})) as any;
 
 // Mock ResizeObserver
 global.ResizeObserver = vi.fn(() => ({
