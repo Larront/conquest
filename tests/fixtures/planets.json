@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Cadia",
+    "distance": "10",
+    "description": "The fortress world that guards the Eye of Terror"
+  },
+  {
+    "id": 2,
+    "name": "Armageddon",
+    "distance": "25",
+    "description": "Industrial hive world, site of multiple Ork invasions"
+  },
+  {
+    "id": 3,
+    "name": "Krieg",
+    "distance": "40",
+    "description": "Death world known for its legendary Imperial Guard regiments"
+  },
+  {
+    "id": 4,
+    "name": "Ultramar",
+    "distance": "55",
+    "description": "Realm of the Ultramarines Chapter"
+  }
+]

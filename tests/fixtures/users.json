@@ -1,0 +1,32 @@
+[
+  {
+    "id": "test-user-1",
+    "email": "user1@example.com",
+    "username": "testuser1",
+    "battles_won": 5,
+    "battles_lost": 3,
+    "battles_drawn": 1,
+    "total_points": 150,
+    "created_at": "2023-01-01T00:00:00.000Z"
+  },
+  {
+    "id": "test-user-2",
+    "email": "user2@example.com",
+    "username": "testuser2",
+    "battles_won": 3,
+    "battles_lost": 5,
+    "battles_drawn": 2,
+    "total_points": 120,
+    "created_at": "2023-01-02T00:00:00.000Z"
+  },
+  {
+    "id": "test-user-3",
+    "email": "user3@example.com",
+    "username": "testuser3",
+    "battles_won": 8,
+    "battles_lost": 2,
+    "battles_drawn": 0,
+    "total_points": 200,
+    "created_at": "2023-01-03T00:00:00.000Z"
+  }
+]
