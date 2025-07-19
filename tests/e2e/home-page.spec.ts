@@ -30,61 +30,53 @@ test.describe('Home Page - Planet and Faction Control', () => {
   });
 
   test('should display planets in solar system layout', async ({ page }) => {
-    // Look for planet elements (they should be positioned around the sun)
-    const planets = page.locator('[data-testid="planet"]').or(page.locator('.planet')).or(page.locator('button').filter({ hasText: /planet/i }));
+    // Wait for page and planets to load
+    await page.waitForLoadState('networkidle');
     
-    // Wait for planets to load
-    await page.waitForTimeout(1000);
+    // Look for planet buttons based on the home page snapshot
+    const planetButtons = page.locator('button').filter({ hasText: /View details for/ });
     
-    // Check that there are planets visible (the exact selector depends on implementation)
-    // Since we can't see the exact planet structure, we'll check for common planet-related elements
-    const possiblePlanetElements = await page.locator('div').filter({ hasText: /planet|world/i }).count();
+    // Should have planet buttons visible
+    const planetCount = await planetButtons.count();
+    expect(planetCount).toBeGreaterThan(0);
     
-    // Should have some planet-related content
-    expect(possiblePlanetElements).toBeGreaterThan(0);
+    // Check for specific planets mentioned in snapshot
+    await expect(page.locator('button:has-text("View details for Veltraxis")')).toBeVisible();
   });
 
   test('should open planet info panel when planet is clicked', async ({ page }) => {
-    // Wait for page to load
-    await page.waitForTimeout(1000);
+    // Wait for planets to load
+    await page.waitForLoadState('networkidle');
     
-    // Try to find and click a planet element
-    // This will depend on the actual planet implementation
-    const planetElements = page.locator('button').filter({ hasText: /\w+/ }); // Generic planet button
+    // Click on a specific planet
+    const planetButton = page.locator('button:has-text("View details for Veltraxis")');
+    await planetButton.click();
     
-    if (await planetElements.count() > 0) {
-      await planetElements.first().click();
-      
-      // Should open planet info panel
-      await expect(page.locator('.border-yellow-600')).toBeVisible();
-      
-      // Should show close button
-      await expect(page.locator('button:has-text("×")')).toBeVisible();
-    }
+    // Should open planet info panel with yellow border
+    await expect(page.locator('.border-yellow-600').last()).toBeVisible({ timeout: 5000 });
+    
+    // Should show close button (X icon)
+    await expect(page.locator('button').filter({ has: page.locator('svg') }).last()).toBeVisible();
   });
 
   test('should close planet info panel when X is clicked', async ({ page }) => {
-    // Wait for page to load
-    await page.waitForTimeout(1000);
+    // Wait for planets to load
+    await page.waitForLoadState('networkidle');
     
-    // Try to click a planet first
-    const planetElements = page.locator('button').filter({ hasText: /\w+/ });
+    // Click on a planet to open panel
+    const planetButton = page.locator('button:has-text("View details for Veltraxis")');
+    await planetButton.click();
     
-    if (await planetElements.count() > 0) {
-      await planetElements.first().click();
-      
-      // Wait for panel to open
-      await page.waitForTimeout(500);
-      
-      // Click close button
-      const closeButton = page.locator('button:has-text("×")').last();
-      if (await closeButton.isVisible()) {
-        await closeButton.click();
-        
-        // Panel should be closed (depends on implementation)
-        await page.waitForTimeout(500);
-      }
-    }
+    // Wait for panel to open
+    const panel = page.locator('.border-yellow-600').last();
+    await expect(panel).toBeVisible({ timeout: 5000 });
+    
+    // Click close button (X icon)
+    const closeButton = page.locator('button').filter({ has: page.locator('svg') }).last();
+    await closeButton.click();
+    
+    // Panel should close or become hidden
+    await expect(panel).not.toBeVisible({ timeout: 5000 });
   });
 
   test('should display orbital paths around the sun', async ({ page }) => {
@@ -99,6 +91,9 @@ test.describe('Home Page - Planet and Faction Control', () => {
   test('should have responsive design for mobile', async ({ page }) => {
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
+    
+    // Wait for layout to adjust
+    await page.waitForLoadState('networkidle');
     
     // Main content should still be visible
     await expect(page.locator('text=MALVERNIS SECTOR')).toBeVisible();
@@ -127,34 +122,40 @@ test.describe('Home Page - Planet and Faction Control', () => {
   });
 
   test('should show loading state for planet info', async ({ page }) => {
-    // Wait for page to load
-    await page.waitForTimeout(1000);
+    // Wait for planets to load
+    await page.waitForLoadState('networkidle');
     
-    // Try to click a planet
-    const planetElements = page.locator('button').filter({ hasText: /\w+/ });
+    // Click on a planet
+    const planetButton = page.locator('button:has-text("View details for Veltraxis")');
+    await planetButton.click();
     
-    if (await planetElements.count() > 0) {
-      await planetElements.first().click();
-      
-      // Look for loading indicator
-      const loadingIndicator = page.locator('text=Loading planet details');
-      
-      // If loading state exists, it should be visible
-      if (await loadingIndicator.isVisible()) {
-        await expect(loadingIndicator).toBeVisible();
-      }
+    // Look for loading indicator based on the actual component
+    const loadingIndicator = page.locator('text=Loading planet details...');
+    
+    // Loading state might be very brief, so we check if it appears
+    try {
+      await expect(loadingIndicator).toBeVisible({ timeout: 2000 });
+    } catch {
+      // Loading might be too fast to catch, which is fine
+      // Check that panel opens instead
+      await expect(page.locator('.border-yellow-600').last()).toBeVisible({ timeout: 5000 });
     }
   });
 
   test('should display faction control information', async ({ page }) => {
     // Wait for data to load
-    await page.waitForTimeout(1000);
+    await page.waitForLoadState('networkidle');
     
-    // Look for faction-related content
-    const factionElements = page.locator('div').filter({ hasText: /faction|control/i });
+    // Click on a planet to see faction control info
+    const planetButton = page.locator('button:has-text("View details for Veltraxis")');
+    await planetButton.click();
     
-    // Should have some faction-related information
-    const factionCount = await factionElements.count();
-    expect(factionCount).toBeGreaterThan(0);
+    // Wait for planet info panel to open
+    await expect(page.locator('.border-yellow-600').last()).toBeVisible({ timeout: 5000 });
+    
+    // Look for faction-related content in the panel
+    // This might include faction names, control percentages, etc.
+    const panelContent = page.locator('.border-yellow-600').last();
+    await expect(panelContent).toContainText(/control|faction|percentage/i);
   });
 });

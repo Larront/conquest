@@ -1,48 +1,66 @@
 import { test, expect } from '@playwright/test';
+import { authenticateUser, TEST_USERS } from './auth-helpers';
 
 test.describe('Battle Submission', () => {
   test.beforeEach(async ({ page }) => {
-    // Note: These tests assume authentication is handled at the route level
-    // In a real e2e test, you'd need to authenticate first
+    // Authenticate user before accessing protected route
+    await authenticateUser(page, TEST_USERS.basic);
     await page.goto('/private/upload');
   });
 
   test('should display battle submission form', async ({ page }) => {
-    // Check that the form elements are present
-    await expect(page.locator('text=BATTLE REPORT SUBMISSION')).toBeVisible();
+    // Check that the form elements are present with correct text
+    await expect(page.locator('text=++ BATTLE REPORT SUBMISSION ++')).toBeVisible();
     await expect(page.locator('form')).toBeVisible();
     
-    // Check for required form fields
+    // Check for required form fields with proper labels
     await expect(page.locator('select[name="selectedPlanet"]')).toBeVisible();
+    await expect(page.locator('text=THEATER OF WAR')).toBeVisible();
+    
     await expect(page.locator('input[name="battleDate"]')).toBeVisible();
+    await expect(page.locator('text=DATE OF ENGAGEMENT')).toBeVisible();
+    
     await expect(page.locator('select[name="battleType"]')).toBeVisible();
+    await expect(page.locator('text=ENGAGEMENT TYPE')).toBeVisible();
+    
     await expect(page.locator('input[name="points"]')).toBeVisible();
+    await expect(page.locator('text=FORCE STRENGTH')).toBeVisible();
+    
     await expect(page.locator('select[name="attacker"]')).toBeVisible();
+    await expect(page.locator('text=ATTACKING FORCE')).toBeVisible();
+    
     await expect(page.locator('select[name="defender"]')).toBeVisible();
+    await expect(page.locator('text=DEFENDING FORCE')).toBeVisible();
+    
     await expect(page.locator('input[name="attackerPoints"]')).toBeVisible();
     await expect(page.locator('input[name="defenderPoints"]')).toBeVisible();
     
-    // Check for battle result radio buttons
-    await expect(page.locator('input[name="result"][value="Attacker Victory"]')).toBeVisible();
-    await expect(page.locator('input[name="result"][value="Defender Victory"]')).toBeVisible();
-    await expect(page.locator('input[name="result"][value="Draw"]')).toBeVisible();
+    // Check for battle result radio buttons (they're hidden but labels are clickable)
+    await expect(page.locator('input[name="result"][value="Attacker Victory"]')).toBeHidden();
+    await expect(page.locator('text=Attacker Victory')).toBeVisible();
+    await expect(page.locator('text=Defender Victory')).toBeVisible();
+    await expect(page.locator('text=Draw')).toBeVisible();
     
     // Check for description textarea
     await expect(page.locator('textarea[name="description"]')).toBeVisible();
     
     // Check for submit button
     await expect(page.locator('button[type="submit"]')).toBeVisible();
+    await expect(page.locator('text=SUBMIT BATTLE REPORT')).toBeVisible();
   });
 
   test('should show form validation errors for empty submission', async ({ page }) => {
     // Try to submit empty form
     await page.click('button[type="submit"]');
     
-    // Should show validation errors
-    await expect(page.locator('.text-red-400')).toBeVisible();
+    // Should show validation errors (errors only show after submission attempt)
+    await expect(page.locator('p.text-red-400').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should fill out complete battle form', async ({ page }) => {
+    // Wait for form to be fully loaded
+    await page.waitForLoadState('networkidle');
+    
     // Fill out the form with valid data
     await page.selectOption('select[name="selectedPlanet"]', { index: 1 });
     await page.fill('input[name="battleDate"]', '2024-12-01');
@@ -65,8 +83,8 @@ test.describe('Battle Submission', () => {
     await page.fill('input[name="attackerPoints"]', '15');
     await page.fill('input[name="defenderPoints"]', '10');
     
-    // Select battle result
-    await page.check('input[name="result"][value="Attacker Victory"]');
+    // Select battle result using label click (radio button is hidden)
+    await page.click('label:has-text("Attacker Victory")');
     
     // Fill description
     await page.fill('textarea[name="description"]', 'A fierce battle on the industrial world resulted in Imperial victory.');
@@ -79,17 +97,17 @@ test.describe('Battle Submission', () => {
   });
 
   test('should highlight selected battle result', async ({ page }) => {
-    // Click on attacker victory
-    await page.click('input[name="result"][value="Attacker Victory"]');
+    // Click on attacker victory label (since radio button is hidden)
+    await page.click('label:has-text("Attacker Victory")');
     
-    // Check that the corresponding div is highlighted
-    await expect(page.locator('div:has-text("Attacker Victory")')).toHaveClass(/border-red-500/);
+    // Check that the corresponding div is highlighted with red border
+    await expect(page.locator('div:has-text("Attacker Victory")').first()).toHaveClass(/border-red-500/);
     
-    // Click on defender victory
-    await page.click('input[name="result"][value="Defender Victory"]');
+    // Click on defender victory label
+    await page.click('label:has-text("Defender Victory")');
     
-    // Check that defender victory is now highlighted
-    await expect(page.locator('div:has-text("Defender Victory")')).toHaveClass(/border-green-500/);
+    // Check that defender victory is now highlighted with green border
+    await expect(page.locator('div:has-text("Defender Victory")').first()).toHaveClass(/border-green-500/);
   });
 
   test('should validate points field constraints', async ({ page }) => {
@@ -128,8 +146,8 @@ test.describe('Battle Submission', () => {
   });
 
   test('should navigate back to home', async ({ page }) => {
-    // Click the X button to go back to home
-    await page.click('a:has-text("×")');
+    // Click the X button to go back to home (it's an SVG icon)
+    await page.click('a[href="/"]');
     await expect(page).toHaveURL('/');
   });
 
@@ -137,7 +155,7 @@ test.describe('Battle Submission', () => {
     // Fill out minimal form
     await page.selectOption('select[name="selectedPlanet"]', { index: 1 });
     await page.fill('input[name="battleDate"]', '2024-12-01');
-    await page.check('input[name="result"][value="Draw"]');
+    await page.click('label:has-text("Draw")');
     
     // Submit form
     await page.click('button[type="submit"]');

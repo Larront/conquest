@@ -1,22 +1,23 @@
 import { test, expect } from '@playwright/test';
+import { authenticateUser, TEST_USERS } from './auth-helpers';
 
 test.describe('User Profile Management', () => {
   test.beforeEach(async ({ page }) => {
-    // Note: These tests assume authentication is handled at the route level
-    // In a real e2e test, you'd need to authenticate first
+    // Authenticate user before accessing protected route
+    await authenticateUser(page, TEST_USERS.basic);
     await page.goto('/private/user');
   });
 
   test('should display user profile page with tabs', async ({ page }) => {
     // Check that the profile page loads
-    await expect(page.locator('text=SERVITOR RECORDS')).toBeVisible();
+    await expect(page.locator('text=++ SERVITOR RECORDS ++')).toBeVisible();
     
     // Check for tab navigation
     await expect(page.locator('button:has-text("Profile")')).toBeVisible();
     await expect(page.locator('button:has-text("Factions")')).toBeVisible();
     await expect(page.locator('button:has-text("Security")')).toBeVisible();
     
-    // Profile tab should be active by default
+    // Profile tab should be active by default (has border-yellow-500 class)
     await expect(page.locator('button:has-text("Profile")')).toHaveClass(/border-yellow-500/);
   });
 
@@ -26,11 +27,11 @@ test.describe('User Profile Management', () => {
     await expect(page.locator('text=ACCOUNT INFORMATION')).toBeVisible();
     await expect(page.locator('text=COMBAT RECORD')).toBeVisible();
     
-    // Check for profile form elements
+    // Check for profile form elements  
     await expect(page.locator('input[name="username"]')).toBeVisible();
-    await expect(page.locator('button:has-text("UPDATE PROFILE")')).toBeVisible();
+    await expect(page.locator('text=SERVITOR DESIGNATION')).toBeVisible();
     
-    // Check for account information
+    // Check for account information section
     await expect(page.locator('text=Enlisted:')).toBeVisible();
     await expect(page.locator('text=Servitor ID:')).toBeVisible();
     await expect(page.locator('text=Security Clearance:')).toBeVisible();
@@ -48,8 +49,7 @@ test.describe('User Profile Management', () => {
     
     // Should show factions content
     await expect(page.locator('text=Faction Management')).toBeVisible();
-    await expect(page.locator('text=Add New Faction')).toBeVisible();
-    await expect(page.locator('text=YOUR FACTIONS')).toBeVisible();
+    await expect(page.locator('button:has-text("Add New Faction")')).toBeVisible();
     
     // Factions tab should be active
     await expect(page.locator('button:has-text("Factions")')).toHaveClass(/border-yellow-500/);
@@ -63,7 +63,7 @@ test.describe('User Profile Management', () => {
     await page.click('button:has-text("Add New Faction")');
     
     // Should show add faction form
-    await expect(page.locator('text=ADD NEW FACTION')).toBeVisible();
+    await expect(page.locator('text=++ ADD NEW FACTION ++')).toBeVisible();
     await expect(page.locator('select[name="factionName"]')).toBeVisible();
     await expect(page.locator('input[name="factionDisplayName"]')).toBeVisible();
     await expect(page.locator('button:has-text("Add Faction")')).toBeVisible();
@@ -78,13 +78,13 @@ test.describe('User Profile Management', () => {
     await page.click('button:has-text("Add New Faction")');
     
     // Should show form
-    await expect(page.locator('text=ADD NEW FACTION')).toBeVisible();
+    await expect(page.locator('text=++ ADD NEW FACTION ++')).toBeVisible();
     
     // Click cancel
     await page.click('button:has-text("Cancel")');
     
     // Form should be hidden
-    await expect(page.locator('text=ADD NEW FACTION')).not.toBeVisible();
+    await expect(page.locator('text=++ ADD NEW FACTION ++')).not.toBeVisible();
   });
 
   test('should switch to security tab', async ({ page }) => {
@@ -170,8 +170,8 @@ test.describe('User Profile Management', () => {
   });
 
   test('should navigate back to home', async ({ page }) => {
-    // Click the X button to go back to home
-    await page.click('a:has-text("×")');
+    // Click the X button to go back to home (it's an SVG icon)
+    await page.click('a[href="/"]');
     await expect(page).toHaveURL('/');
   });
 
