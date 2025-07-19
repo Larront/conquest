@@ -30,6 +30,6 @@ Follow these steps:
 
 # DEPLOY
 
-1. Open a PR and request a review
+1. Let me review the branch that you've created. If I think it's acceptable, make a PR with your changes.
 
 Remember to use the GitHub CLI ('gh') for all GitHub-related tasks

@@ -42,10 +42,9 @@ export const battleUploadSchema = z
 		}),
 		description: z.string().max(1000, 'Description cannot exceed 1000 characters').optional(),
 		battleDate: z.string().refine((dateStr) => {
-			const date = new Date(new Date(dateStr).toDateString());
-			const now = new Date(new Date().toDateString());
-			console.log(date, now);
-			return date <= now;
+			const inputDateStr = dateStr;
+			const todayStr = new Date().toISOString().split('T')[0];
+			return inputDateStr <= todayStr;
 		}, 'Battle date must not be in the future')
 	})
 	.refine((data) => data.attacker !== data.defender, {
