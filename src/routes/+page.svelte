@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Planet } from '$lib/types';
-	import { LogIn, Plus, X } from '@lucide/svelte';
+	import { LogIn, Plus, X, BookOpen } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
 	import UserMenu from '$lib/components/auth/UserMenu.svelte';
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
@@ -175,6 +175,13 @@
 						{isMobile.current ? 'flex-col' : ''}
 						items-center justify-between gap-2"
 					>
+						<a
+							href="/rules"
+							class="flex items-center gap-1 rounded border border-gray-600 bg-gray-800/80 px-2 py-1 text-xs text-gray-300 transition-colors hover:border-yellow-600 hover:text-yellow-200"
+						>
+							<BookOpen size={14} />
+							Rules
+						</a>
 						{#if user}
 							<a
 								class="{isMobile ? 'text-xs' : ''}
@@ -204,6 +211,13 @@
 					<p class="text-sm tracking-wide opacity-75">+ IMPERIAL RECONNAISSANCE PROTOCOL +</p>
 				</div>
 				<div class="absolute top-4 right-4 flex gap-2">
+					<a
+						href="/rules"
+						class="flex items-center gap-2 rounded border border-gray-600 bg-gray-800/80 px-3 py-2 text-gray-300 transition-colors hover:border-yellow-600 hover:text-yellow-200"
+					>
+						<BookOpen size={16} />
+						Rules
+					</a>
 					{#if user}
 						<a
 							class=" flex items-center gap-2 rounded border border-yellow-600 bg-gray-900/80 px-3 py-2 text-yellow-200 transition-colors hover:cursor-pointer hover:bg-gray-800"

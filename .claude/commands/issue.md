@@ -6,7 +6,7 @@ Follow these steps:
 
 1. Use 'gh issue view' to get the issue details
 2. Understand the problem described in the issue
-3. Ask clarifying questions if necessary
+3. Ask me clarifying questions if necessary
 4. Understand the prior art for this issue:
    - Search the scratchpads for previous thoughts related to this issue
    - Search PRs to see if you can find history on this issue
@@ -30,6 +30,6 @@ Follow these steps:
 
 # DEPLOY
 
-1. Let me review the branch that you've created. If I think it's acceptable, make a PR with your changes.
+1. Let me review the branch that you've created. I'll then tell you if you can create a pull request.
 
 Remember to use the GitHub CLI ('gh') for all GitHub-related tasks

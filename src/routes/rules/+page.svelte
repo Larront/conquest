@@ -4,19 +4,9 @@
 	import { IsMobile } from '$lib/hooks/is-mobile.svelte.js';
 
 	let { data } = $props();
-	let { htmlContent, lastUpdated, user } = $derived(data);
+	let { user } = $derived(data);
 
 	let isMobile = new IsMobile();
-
-	// Format the last updated date
-	const formattedDate = $derived(() => {
-		const date = new Date(lastUpdated);
-		return date.toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'long', 
-			day: 'numeric'
-		});
-	});
 </script>
 
 <svelte:head>
@@ -98,78 +88,219 @@
 
 		<!-- Main Content -->
 		<main class="container mx-auto px-4 py-8">
-			<div class="mx-auto max-w-4xl">
-				<!-- Last Updated -->
-				<div class="mb-6 text-center">
-					<p class="text-sm text-yellow-300/75">
-						Last updated: {formattedDate()}
-					</p>
-				</div>
+			<div class="mx-auto max-w-5xl">
+				<!-- Campaign Title Section -->
+				<section class="mb-12 text-center">
+					<div class="relative inline-block">
+						<div class="absolute inset-0 bg-yellow-600 blur-md opacity-20"></div>
+						<h2 class="relative text-4xl md:text-6xl font-black tracking-widest text-yellow-200 mb-4">
+							MALVERNIS SECTOR
+						</h2>
+					</div>
+					<div class="text-yellow-300 text-lg tracking-wide">
+						CAMPAIGN RULES
+					</div>
+				</section>
 
-				<!-- Rules Content -->
-				<article 
-					class="prose prose-invert prose-yellow max-w-none 
-						   prose-headings:text-yellow-200 prose-headings:font-bold prose-headings:tracking-wide
-						   prose-h1:text-3xl prose-h1:mb-6 prose-h1:border-b prose-h1:border-yellow-600 prose-h1:pb-2
-						   prose-h2:text-2xl prose-h2:mb-4 prose-h2:text-yellow-300
-						   prose-h3:text-xl prose-h3:mb-3 prose-h3:text-yellow-300
-						   prose-p:text-gray-200 prose-p:leading-relaxed
-						   prose-strong:text-yellow-100 prose-strong:font-semibold
-						   prose-em:text-yellow-200
-						   prose-ul:text-gray-200 prose-ol:text-gray-200
-						   prose-li:mb-1
-						   prose-blockquote:text-yellow-200 prose-blockquote:border-yellow-600
-						   prose-code:text-yellow-100 prose-code:bg-gray-800 prose-code:px-1 prose-code:rounded
-						   prose-pre:bg-gray-900 prose-pre:border prose-pre:border-gray-700
-						   prose-a:text-yellow-400 prose-a:no-underline hover:prose-a:text-yellow-300
-						   bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-600/30 p-8"
-				>
-					{@html htmlContent}
-				</article>
+				<!-- Campaign Overview -->
+				<section class="mb-12 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-600/30 p-8">
+					<h3 class="text-2xl font-bold text-yellow-200 mb-6 border-b border-yellow-600 pb-2">
+						Campaign Overview
+					</h3>
+					<div class="space-y-4 text-gray-200 leading-relaxed">
+						<p>
+							Welcome to the <strong class="text-yellow-100">Malvernis Sector</strong> campaign! Fight for control over the Malvernis sector, located in the Veiled Region of Segmentum Tempestus in the galactic south of Imperium Sanctus.
+						</p>
+						<p>
+							While scarce, planets in this sector are highly valued for their resources and technological artefacts, so factions galaxy-wide have found themselves focusing on this narrow corner of space.
+						</p>
+						
+						<div class="bg-gray-900/50 rounded p-6 border-l-4 border-yellow-600">
+							<h4 class="text-yellow-200 font-semibold mb-3">Planets in the Sector:</h4>
+							<div class="grid md:grid-cols-3 gap-4 text-center">
+								<div class="bg-red-900/20 rounded p-3 border border-red-600/30">
+									<div class="text-red-300 font-bold">SIREPHUS</div>
+								</div>
+								<div class="bg-blue-900/20 rounded p-3 border border-blue-600/30">
+									<div class="text-blue-300 font-bold">MYTHARA</div>
+								</div>
+								<div class="bg-green-900/20 rounded p-3 border border-green-600/30">
+									<div class="text-green-300 font-bold">VELTRAXIS</div>
+								</div>
+							</div>
+						</div>
+
+						<p>
+							As you play games and win, you'll gain more control over these planets, allowing you to bring larger forces to the battlefield. Likewise, if your opponents have a high level of control over a planet, you can summon a larger fighting force to try and wrest control back.
+						</p>
+
+						<div class="bg-yellow-900/20 rounded p-6 border border-yellow-600/50">
+							<h4 class="text-yellow-200 font-semibold mb-3">Multi-Faction Gameplay</h4>
+							<p class="text-gray-200">
+								This campaign allows you to play as multiple different factions throughout the league! You're not locked into a single army - feel free to experiment with different forces as you fight for control of the sector. Whether you want to lead the Imperium's finest one week and command xenos forces the next, the choice is yours.
+							</p>
+						</div>
+					</div>
+				</section>
+
+				<!-- Control Thresholds & Battle Sizes -->
+				<section class="mb-12 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-600/30 p-8">
+					<h3 class="text-2xl font-bold text-yellow-200 mb-6 border-b border-yellow-600 pb-2">
+						Control Thresholds & Battle Sizes
+					</h3>
+					<p class="text-gray-200 mb-6">
+						The size of the force you can bring to each planet is determined by your faction's control level:
+					</p>
+					
+					<div class="overflow-x-auto">
+						<table class="w-full border-collapse bg-gray-900/50 rounded">
+							<thead>
+								<tr class="bg-yellow-900/30">
+									<th class="border border-yellow-600/50 px-6 py-4 text-left text-yellow-200 font-bold">
+										Control Threshold
+									</th>
+									<th class="border border-yellow-600/50 px-6 py-4 text-left text-yellow-200 font-bold">
+										Max Battle Size
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr class="hover:bg-gray-800/30 transition-colors">
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">&lt;20%</td>
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200 font-semibold">500pts</td>
+								</tr>
+								<tr class="bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">≥20%</td>
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200 font-semibold">1000pts</td>
+								</tr>
+								<tr class="hover:bg-gray-800/30 transition-colors">
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">≥30%</td>
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200 font-semibold">1500pts</td>
+								</tr>
+								<tr class="bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">≥40%</td>
+									<td class="border border-yellow-600/50 px-6 py-4 text-gray-200 font-semibold">2000pts</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+					<p class="text-yellow-300 mt-4 text-sm">
+						<strong>Note:</strong> Only one force per battle needs to meet the control threshold.
+					</p>
+				</section>
+
+				<!-- Point Scoring System -->
+				<section class="mb-12 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-600/30 p-8">
+					<h3 class="text-2xl font-bold text-yellow-200 mb-6 border-b border-yellow-600 pb-2">
+						Point Scoring System
+					</h3>
+
+					<div class="mb-8">
+						<h4 class="text-xl text-yellow-300 font-semibold mb-4">How to Participate</h4>
+						<ol class="list-decimal list-inside space-y-2 text-gray-200 pl-4">
+							<li>Make an account on the campaign website</li>
+							<li>Play games and paint miniatures!</li>
+							<li>Log your games on the website and share your painted models</li>
+						</ol>
+					</div>
+
+					<div>
+						<h4 class="text-xl text-yellow-300 font-semibold mb-4">Point Values</h4>
+						<div class="overflow-x-auto">
+							<table class="w-full border-collapse bg-gray-900/50 rounded">
+								<thead>
+									<tr class="bg-yellow-900/30">
+										<th class="border border-yellow-600/50 px-6 py-4 text-left text-yellow-200 font-bold">
+											Action
+										</th>
+										<th class="border border-yellow-600/50 px-6 py-4 text-center text-yellow-200 font-bold">
+											Points
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr class="hover:bg-gray-800/30 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Win a game</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-green-400 font-bold">3</td>
+									</tr>
+									<tr class="bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Draw a game</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-yellow-400 font-bold">1</td>
+									</tr>
+									<tr class="hover:bg-gray-800/30 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Winning against someone with more territory</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-green-400 font-bold">+1</td>
+									</tr>
+									<tr class="bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Submit a narrative battle log</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-blue-400 font-bold">1</td>
+									</tr>
+									<tr class="hover:bg-gray-800/30 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Paint a unit</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-purple-400 font-bold">1</td>
+									</tr>
+									<tr class="bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Paint a character/monster/vehicle</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-purple-400 font-bold">2</td>
+									</tr>
+									<tr class="hover:bg-gray-800/30 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Paint a terrain item / display base</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-purple-400 font-bold">1</td>
+									</tr>
+									<tr class="bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+										<td class="border border-yellow-600/50 px-6 py-4 text-gray-200">Reach a 20% control milestone on a planet</td>
+										<td class="border border-yellow-600/50 px-6 py-4 text-center text-orange-400 font-bold">1 (per 20%)</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</section>
+
+				<!-- Planetary Effects -->
+				<section class="mb-12 bg-black/30 backdrop-blur-sm rounded-lg border border-yellow-600/30 p-8">
+					<h3 class="text-2xl font-bold text-yellow-200 mb-6 border-b border-yellow-600 pb-2">
+						Planetary Effects
+					</h3>
+					
+					<p class="text-gray-200 mb-6">
+						Every week, planets will have random effects applied to them that can dramatically change the nature of battles fought there.
+					</p>
+
+					<div class="bg-red-900/20 border border-red-600/50 rounded p-6 mb-6">
+						<h4 class="text-red-300 font-bold mb-3">Example Effect - Bloodlust:</h4>
+						<p class="text-gray-200">
+							You are eligible to charge within 18" instead of 12". When you charge, roll 3d6 instead of 2d6.
+						</p>
+					</div>
+
+					<div>
+						<h4 class="text-xl text-yellow-300 font-semibold mb-4">Using Planetary Effects</h4>
+						<ul class="list-disc list-inside space-y-2 text-gray-200 pl-4">
+							<li>Effects are optional - you and your opponent must agree to use them</li>
+							<li>Effects work best when known before army building, as they can significantly influence force composition</li>
+							<li>If an effect would make the game less enjoyable, feel free to ignore it</li>
+						</ul>
+					</div>
+				</section>
 			</div>
 		</main>
 
 		<!-- Footer -->
-		<footer class="border-t border-yellow-600/30 bg-black/50 py-6 mt-12">
+		<footer class="border-t border-yellow-600/30 bg-black/50 py-8 mt-12">
 			<div class="container mx-auto px-4 text-center">
-				<p class="text-yellow-300/75 text-sm">
-					<em>In the grim darkness of the far future, there is only war.</em>
-				</p>
+				<div class="mb-4">
+					<div class="inline-block border-2 border-yellow-600 px-6 py-2 bg-black/50">
+						<p class="text-yellow-200 text-lg font-bold tracking-wider">
+							IN THE GRIM DARKNESS OF THE FAR FUTURE
+						</p>
+						<p class="text-yellow-300 text-sm tracking-widest">
+							THERE IS ONLY WAR
+						</p>
+					</div>
+				</div>
 			</div>
 		</footer>
 	</div>
 </div>
-
-<style>
-	/* Custom table styling for rules tables */
-	:global(.prose table) {
-		width: 100%;
-		border-collapse: collapse;
-		border: 1px solid rgb(202 138 4 / 0.5);
-		background-color: rgb(17 24 39 / 0.5);
-	}
-	
-	:global(.prose th) {
-		padding: 0.5rem 1rem;
-		color: rgb(254 240 138);
-		font-weight: bold;
-		text-align: left;
-		border: 1px solid rgb(202 138 4 / 0.5);
-		background-color: rgb(113 63 18 / 0.3);
-	}
-	
-	:global(.prose td) {
-		padding: 0.5rem 1rem;
-		color: rgb(229 231 235);
-		border: 1px solid rgb(202 138 4 / 0.5);
-	}
-	
-	:global(.prose tr:nth-child(even)) {
-		background-color: rgb(31 41 55 / 0.3);
-	}
-	
-	:global(.prose hr) {
-		margin: 2rem 0;
-		border-color: rgb(202 138 4 / 0.5);
-	}
-</style>
